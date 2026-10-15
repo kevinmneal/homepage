@@ -2,15 +2,20 @@
 
 Personal professional homepage: https://kevinmneal.com
 
-Plain HTML and CSS, hosted on GitHub Pages. Public site files live in `docs/`; there are no dependencies or build steps.
+Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site files live in `docs/`; there are no dependencies or build steps, analytics, external fonts, or third-party scripts.
 
 ## Editing
 
-- `docs/index.html`: profile, projects, research, publications, and correspondence.
-- `docs/styles.css`: layout and appearance.
-- `docs/CNAME`: custom domain, when configured.
+- `docs/index.html`: profile, public projects, manuscripts, and scholarly links.
+- `docs/styles.css`: responsive layout and Solarized dark/light themes.
+- `docs/site.js`: remembered theme preference and the spadefoot greeting.
+- `docs/assets/spadefoot.png`: owner-supplied pixel-art avatar.
+- `docs/favicon.svg`: small spadefoot icon.
+- `docs/CNAME`: custom domain.
 
-Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. The homepage can link to projects without publishing their source code here.
+The default theme is dark. The theme switch remembers a visitor's choice locally. The page remains readable without JavaScript, and animation respects reduced-motion preferences. No contact address is currently published.
+
+Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. Project descriptions should reflect their linked public releases; distinguish working manuscripts and preprints from peer-reviewed publications.
 
 ## Local preview
 

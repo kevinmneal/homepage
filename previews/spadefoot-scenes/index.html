@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Kevin M. Neal — applied AI engineer and evolutionary biologist. Selected work in biogeography, geometry, and machine learning.">
+  <meta name="theme-color" content="#002b36">
+  <title>Kevin M. Neal</title>
+  <link rel="icon" href="../../docs/favicon.svg" type="image/svg+xml">
+  <script>try { if (localStorage.getItem('kmn-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (_) {}</script>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./site.js" type="module"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="page">
+    <header class="topbar">
+      <a class="wordmark" href="#" aria-label="Kevin M. Neal, home">kevinmneal<span aria-hidden="true">_</span></a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to Solarized light theme" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>
+        <span id="theme-label">light</span>
+      </button>
+    </header>
+    <main id="main" class="layout" tabindex="-1">
+      <section class="intro" aria-labelledby="name">
+        <h1 id="name">Kevin M. Neal<span class="degree">, PhD</span></h1>
+        <p class="discipline">Applied AI &amp; evolutionary biology</p>
+        <p class="bio">Engineer with a PhD from UCLA. My independent work explores biogeography, geometry, and machine learning.</p>
+      </section>
+
+      <aside class="companion-rail" aria-label="Animated spadefoot companion">
+        <div class="companion-stage">
+          <canvas id="companion" width="400" height="340" aria-hidden="true"></canvas>
+        </div>
+        <div class="companion-meta">
+          <p id="companion-label" aria-live="polite" aria-atomic="true">At rest</p>
+          <div class="companion-controls">
+            <button id="companion-replay" type="button" aria-label="Replay the spadefoot animation" hidden>replay</button>
+            <button id="companion-pause" type="button" aria-label="Pause the spadefoot animation" hidden>pause</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="work" aria-labelledby="work-title">
+        <div class="section-heading"><h2 id="work-title">Work &amp; projects</h2><span class="interaction-hint">open to explore</span></div>
+        <div class="project-list">
+          <details class="project" name="projects" data-scene="insurance">
+            <summary><span class="row-number" aria-hidden="true">01</span><span class="row-copy"><span class="row-title">Fortegra</span><span class="row-subtitle">Principal Engineer</span></span><span class="row-category">work</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content job-content">
+              <div class="project-description"><p>Principal Engineer at Fortegra.</p></div>
+              <figure class="project-figure terminal-figure" aria-label="A generic computer terminal illustration.">
+                <svg viewBox="0 0 200 135" fill="none" aria-hidden="true">
+                  <rect class="figure-surface" x="24" y="16" width="152" height="92" rx="3"/>
+                  <path class="figure-line" d="M24 33h152M84 108v13m32-13v13M69 122h62"/>
+                  <path class="figure-accent" d="m43 51 10 9-10 9m20 0h17"/>
+                  <circle class="figure-dot" cx="35" cy="25" r="1.5"/><circle class="figure-dot" cx="42" cy="25" r="1.5"/><circle class="figure-dot" cx="49" cy="25" r="1.5"/>
+                </svg>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="ecology">
+            <summary><span class="row-number" aria-hidden="true">02</span><span class="row-copy"><span class="row-title">Spadefoot biogeography</span><span class="row-subtitle">Climate representation &amp; geographical prediction</span></span><span class="row-category">research</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>How the way we describe climate shapes geographical predictions for spadefoot toads. A working manuscript with open results and reproducible comparison tables.</p><div class="project-links"><a href="https://github.com/kevinmneal/spea-climate-research">Research &amp; results <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Manuscript <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure map-figure">
+                <svg viewBox="0 0 220 150" fill="none" role="img" aria-label="A schematic contour map with illustrative points, not measured occurrence data.">
+                  <path class="figure-surface" d="m24 38 27-18 29 6 28-13 31 15 28-2 27 25-5 33 9 28-31 17-29-10-27 14-29-15-28 6-23-27 9-28z"/>
+                  <g class="map-contours"><path d="m35 87 21-28 22-5 17-20 24 15 22-5 19 24 21 3M41 103l22-26 23-6 14-18 22 15 17-5 18 23 27 2M57 113l19-21 20-4 10-16 17 15 14-7 17 24 19-1"/></g>
+                  <g class="map-points"><rect x="60" y="74" width="4" height="4"/><rect x="77" y="57" width="4" height="4"/><rect x="96" y="70" width="4" height="4"/><rect x="118" y="61" width="4" height="4"/><rect x="137" y="81" width="4" height="4"/><rect x="157" y="92" width="4" height="4"/></g>
+                </svg>
+                <figcaption>Schematic map</figcaption>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="packing">
+            <summary><span class="row-number" aria-hidden="true">03</span><span class="row-copy"><span class="row-title">Six triangles</span><span class="row-subtitle">An optimal packing, with replayable certificates</span></span><span class="row-category">geometry</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>A computer-assisted proof of the optimal packing of six unit equilateral triangles. Explore the geometry, read the preprint, or replay the exact certificates. Further Lean formalization is in progress.</p><div class="project-links"><a href="https://kevinmneal.github.io/six-triangle-packing/">Interactive explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/six-triangle-packing">Code &amp; proof <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure packing-figure">
+                <svg viewBox="35 50 427 376" fill="none" role="img" aria-label="The project's published arrangement of six unit equilateral triangles inside an equilateral triangle.">
+                  <g class="packing-triangles"><polygon points="55,406 185,406 120,293.41670"/><polygon points="312.02062,406 442.02062,406 377.02062,293.41670"/><polygon points="183.51031,183.41361 313.51031,183.41361 248.51031,70.83031"/><polygon points="173.67010,313.04065 290.85052,256.749 183.51031,183.41361"/><polygon points="185,406 313.51031,386.37604 232.26031,284.89483"/><polygon points="232.26031,284.89483 313.51031,386.37604 360.77062,265.27087"/></g>
+                  <path class="packing-boundary" d="M55 406H442.02062L248.51031 70.83031Z"/>
+                </svg>
+                <figcaption>Six unit triangles</figcaption>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="watermark">
+            <summary><span class="row-number" aria-hidden="true">04</span><span class="row-copy"><span class="row-title">LLM watermarking</span><span class="row-subtitle">Statistical signals in token choices</span></span><span class="row-category">explainer</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>An interactive explanation of how statistical signals can be embedded in ordinary token choices. Experiment with a small teaching model and watch evidence accumulate.</p><div class="project-links"><a href="https://kevinmneal.github.io/llm-watermarking/">Try the explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/llm-watermarking">Source code <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure watermark-figure">
+                <svg viewBox="0 0 220 145" fill="none" role="img" aria-label="Teaching illustration: highlighted token choices contribute to an aggregate signal.">
+                  <g class="token-boxes"><rect x="13" y="20" width="38" height="25"/><rect class="selected-token" x="58" y="20" width="69" height="25"/><rect class="selected-token" x="134" y="20" width="73" height="25"/></g>
+                  <g class="token-text"><text x="32" y="36">a</text><text class="selected-token-text" x="92" y="36">subtle</text><text class="selected-token-text" x="170" y="36">signal</text></g>
+                  <path class="figure-line" d="M110 58v22m-4-5 4 5 4-5M20 126h181"/>
+                  <path class="signal-line" d="M21 122h27v-6h27v3h27v-12h27v-5h27v4h27V91h17"/>
+                </svg>
+                <figcaption>Teaching illustration</figcaption>
+              </figure>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="writing" aria-labelledby="writing-title">
+        <div class="section-heading"><h2 id="writing-title">Selected writing</h2><a href="https://scholar.google.com/citations?user=L6ln8EwAAAAJ&amp;hl=en">Scholar <span aria-hidden="true">↗</span></a></div>
+        <ol class="papers">
+          <li><span class="paper-kind">manuscript</span><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Climate representation and geographical prediction of recorded <i>Spea</i> occurrences <span aria-hidden="true">↗</span></a><time datetime="2026-10-15">2026</time></li>
+          <li><span class="paper-kind">preprint</span><a href="https://github.com/kevinmneal/six-triangle-packing/releases/download/v1.0.0/six-triangle-packing-preprint-v1.0.0.pdf">A computer-assisted proof of the optimal packing of six equilateral triangles <span aria-hidden="true">↗</span></a><time datetime="2026-10-08">2026</time></li>
+        </ol>
+      </section>
+    </main>
+    <footer><nav aria-label="Professional and scholarly profiles"><a rel="me" href="https://github.com/kevinmneal">GitHub</a><a rel="me" href="https://orcid.org/0000-0003-4360-8027">ORCID</a><a rel="me" href="https://www.researchgate.net/profile/Kevin-Neal-5">ResearchGate</a><a rel="me" href="https://www.linkedin.com/in/kevinmneal/">LinkedIn</a></nav><span class="copyright">© 2026</span></footer>
+  </div>
+</body>
+</html>

@@ -2,102 +2,121 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Kevin M. Neal — applied AI engineer, evolutionary biologist, and independent researcher. Public projects in spadefoot biogeography, geometry, and machine learning.">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Kevin M. Neal — applied AI engineer and evolutionary biologist. Selected work in biogeography, geometry, and machine learning.">
   <meta name="theme-color" content="#002b36">
-  <meta property="og:title" content="Kevin M. Neal · Code & natural history">
-  <meta property="og:description" content="Applied AI engineer. Evolutionary biologist. A few projects at the intersection of code and curiosity.">
+  <meta property="og:title" content="Kevin M. Neal">
+  <meta property="og:description" content="Applied AI engineer and evolutionary biologist. Selected work in biogeography, geometry, and machine learning.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kevinmneal.com/">
-  <title>Kevin M. Neal · Code &amp; natural history</title>
+  <link rel="canonical" href="https://kevinmneal.com/">
+  <title>Kevin M. Neal</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <script>
-    try {
-      if (localStorage.getItem('kmn-theme') === 'light') document.documentElement.dataset.theme = 'light';
-    } catch (_) {}
-    document.querySelector('meta[name="theme-color"]').content = document.documentElement.dataset.theme === 'light' ? '#fdf6e3' : '#002b36';
-  </script>
-  <link rel="stylesheet" href="./styles.css?v=20261015">
-  <script src="./site.js?v=20261015" defer></script>
+  <script>try { if (localStorage.getItem('kmn-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (_) {}</script>
+  <link rel="stylesheet" href="./styles.css?v=20261015-companion">
+  <script src="./site.js?v=20261015-companion" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="site-shell">
-    <header class="site-header">
-      <a class="home-link" href="#" aria-label="Kevin M. Neal, home"><span class="prompt-mark" aria-hidden="true">~</span>/kevinmneal<span class="cursor" aria-hidden="true">_</span></a>
-      <div class="header-controls">
-        <nav aria-label="On this page"><a href="#projects">projects</a><a href="#writing">writing</a><a href="#elsewhere">elsewhere</a></nav>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to Solarized light theme" hidden>
-          <svg class="sun-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>
-          <svg class="moon-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 15.5A8.6 8.6 0 0 1 8.5 4a8.6 8.6 0 1 0 11.5 11.5Z"/></svg>
-          <span id="theme-label">light</span>
-        </button>
-      </div>
+  <div class="page">
+    <header class="topbar">
+      <a class="wordmark" href="#" aria-label="Kevin M. Neal, home">kevinmneal<span aria-hidden="true">_</span></a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to Solarized light theme" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M4 20l2-2M18 6l2-2"/></svg>
+        <span id="theme-label">light</span>
+      </button>
     </header>
-    <main id="main" tabindex="-1">
-      <section class="hero" aria-labelledby="intro-title">
-        <div class="hero-copy">
-          <p class="command"><span aria-hidden="true">$</span> whoami</p>
-          <h1 id="intro-title">Kevin M. Neal<span class="degree">, PhD</span></h1>
-          <p class="intro">At home somewhere between<br class="desktop-break"> <span>code &amp; natural history.</span></p>
-          <p class="bio">I’m an applied AI engineer and evolutionary biologist with a PhD from UCLA. I build tools, explore ideas, and follow the evidence.</p>
-          <p class="role"><span class="status-dot" aria-hidden="true"></span>Principal Engineer at Fortegra</p>
-          <a class="text-link hero-link" href="#projects">Explore my independent work <span aria-hidden="true">↓</span></a>
-        </div>
-        <figure class="field-note">
-          <div class="field-note-header"><span>field_notes / 001</span><span aria-hidden="true">[ spadefoot ]</span></div>
-          <button class="toad-scene" id="toad-button" type="button" aria-label="Take a coffee break with the spadefoot" disabled>
-            <img src="./assets/spadefoot.png" alt="Pixel-art spadefoot toad at a laptop, with a large mug of coffee." width="460" height="460" fetchpriority="high">
-            <svg class="coffee-steam" viewBox="0 0 460 460" fill="none" aria-hidden="true"><path class="steam steam-one" d="M81 302c-15-17 12-24 0-43"/><path class="steam steam-two" d="M104 300c-15-17 12-24 0-43"/><path class="steam steam-three" d="M126 301c-15-17 12-24 0-43"/></svg>
-            <span class="toad-bubble" id="toad-bubble" aria-hidden="true">one more idea…</span>
-          </button>
-          <figcaption><span>coffee, code, <span class="caption-accent">repeat.</span></span><span class="toad-hint" id="toad-hint" hidden>say hello ↗</span></figcaption>
-          <span class="sr-only" id="toad-status" role="status" aria-live="polite"></span>
-        </figure>
+    <main id="main" class="layout" tabindex="-1">
+      <section class="intro" aria-labelledby="name">
+        <h1 id="name">Kevin M. Neal<span class="degree">, PhD</span></h1>
+        <p class="discipline">Applied AI &amp; evolutionary biology</p>
+        <p class="bio">Engineer with a PhD from UCLA. My independent work explores biogeography, geometry, and machine learning.</p>
       </section>
-      <section class="projects-section" id="projects" aria-labelledby="projects-title">
-        <div class="section-heading"><h2 id="projects-title"><span class="section-index" aria-hidden="true">01</span> Public projects</h2><span class="section-aside">a few things out in the world</span></div>
-        <div class="project-grid">
-          <article class="project-card">
-            <div class="card-label"><span>ecology / biogeography</span><span aria-hidden="true">01</span></div>
-            <div class="project-art climate-art" aria-hidden="true"><svg viewBox="0 0 300 114" fill="none"><g class="contours"><path d="M-10 95C32 23 63 119 114 54s80-47 100-2 62 0 98-35M-10 77C28 7 63 99 105 43S193-7 225 43s60-2 87-42M-10 59C26-8 67 78 98 32s106-58 139 0 55 0 75-48M-10 113C43 44 60 145 126 69s66-26 83 0 66 15 103-35M-10 131C58 67 63 162 140 84s53-12 65 1 65 31 107-34"/></g><g class="climate-points"><circle cx="82" cy="68" r="3"/><circle cx="107" cy="56" r="3"/><circle cx="126" cy="42" r="3"/><circle cx="143" cy="53" r="3"/><circle cx="158" cy="35" r="3"/><circle cx="176" cy="54" r="3"/><circle cx="184" cy="70" r="3"/></g></svg></div>
-            <h3>Spadefoots &amp; climate</h3>
-            <p>How the way we describe climate shapes geographical predictions for spadefoot toads.</p>
-            <p class="project-note">Working manuscript, open results, and reproducible comparison tables.</p>
-            <div class="card-footer"><span class="tag">ongoing research</span><a href="https://github.com/kevinmneal/spea-climate-research">Explore the research <span aria-hidden="true">↗</span></a></div>
-          </article>
-          <article class="project-card">
-            <div class="card-label"><span>geometry / verification</span><span aria-hidden="true">02</span></div>
-            <div class="project-art packing-art" aria-hidden="true"><svg viewBox="0 0 500 460" fill="none"><g class="packing-triangles"><polygon points="55,406 185,406 120,293.41670"/><polygon points="312.02062,406 442.02062,406 377.02062,293.41670"/><polygon points="183.51031,183.41361 313.51031,183.41361 248.51031,70.83031"/><polygon points="173.67010,313.04065 290.85052,256.749 183.51031,183.41361"/><polygon points="185,406 313.51031,386.37604 232.26031,284.89483"/><polygon points="232.26031,284.89483 313.51031,386.37604 360.77062,265.27087"/></g><path class="packing-boundary" d="M55 406H442.02062L248.51031 70.83031Z"/></svg></div>
-            <h3>Six triangles</h3>
-            <p>A computer-assisted proof of an optimal packing, with exact certificates you can replay.</p>
-            <p class="project-note">Explore the geometry interactively. Further Lean formalization is in progress.</p>
-            <div class="card-footer"><span class="tag">preprint + explainer</span><div class="card-links"><a href="https://kevinmneal.github.io/six-triangle-packing/">Explore <span aria-hidden="true">↗</span></a><a class="source-link" href="https://github.com/kevinmneal/six-triangle-packing" aria-label="Six triangles source code">code</a></div></div>
-          </article>
-          <article class="project-card">
-            <div class="card-label"><span>language / machine learning</span><span aria-hidden="true">03</span></div>
-            <div class="project-art watermark-art" aria-hidden="true"><div><span>the</span> <span class="token chosen">signal</span> <span>is</span></div><div><span>in</span> <span class="token">the</span> <span class="token chosen">choices</span><span class="token-cursor">_</span></div><div class="signal-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-            <h3>LLM watermarking</h3>
-            <p>An interactive explanation of how statistical signals can hide in ordinary token choices.</p>
-            <p class="project-note">Try a small teaching model and watch evidence accumulate, one word at a time.</p>
-            <div class="card-footer"><span class="tag">interactive explainer</span><div class="card-links"><a href="https://kevinmneal.github.io/llm-watermarking/">Try it <span aria-hidden="true">↗</span></a><a class="source-link" href="https://github.com/kevinmneal/llm-watermarking" aria-label="LLM watermarking source code">code</a></div></div>
-          </article>
+
+      <aside id="companion-rail" class="companion-rail" aria-label="Animated spadefoot companion">
+        <div class="companion-stage">
+          <canvas id="companion" width="400" height="340" aria-hidden="true"></canvas>
+        </div>
+        <div class="companion-meta">
+          <p id="companion-label" aria-live="polite" aria-atomic="true">At rest</p>
+          <div class="companion-controls">
+            <button id="companion-replay" type="button" aria-label="Replay the spadefoot animation" hidden>replay</button>
+            <button id="companion-pause" type="button" aria-label="Pause the spadefoot animation" hidden>pause</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="work" aria-labelledby="work-title">
+        <div class="section-heading"><h2 id="work-title">Work &amp; projects</h2><span class="interaction-hint">open to explore</span></div>
+        <div class="project-list">
+          <details class="project" name="projects" data-scene="insurance">
+            <summary><span class="row-number" aria-hidden="true">01</span><span class="row-copy"><span class="row-title">Fortegra</span><span class="row-subtitle">Principal Engineer</span></span><span class="row-category">work</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content job-content">
+              <div class="project-description"><p>Principal Engineer at Fortegra.</p></div>
+              <figure class="project-figure terminal-figure" aria-label="A generic computer terminal illustration.">
+                <svg viewBox="0 0 200 135" fill="none" aria-hidden="true">
+                  <rect class="figure-surface" x="24" y="16" width="152" height="92" rx="3"/>
+                  <path class="figure-line" d="M24 33h152M84 108v13m32-13v13M69 122h62"/>
+                  <path class="figure-accent" d="m43 51 10 9-10 9m20 0h17"/>
+                  <circle class="figure-dot" cx="35" cy="25" r="1.5"/><circle class="figure-dot" cx="42" cy="25" r="1.5"/><circle class="figure-dot" cx="49" cy="25" r="1.5"/>
+                </svg>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="ecology">
+            <summary><span class="row-number" aria-hidden="true">02</span><span class="row-copy"><span class="row-title">Spadefoot biogeography</span><span class="row-subtitle">Climate representation &amp; geographical prediction</span></span><span class="row-category">research</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>How the way we describe climate shapes geographical predictions for spadefoot toads. A working manuscript with open results and reproducible comparison tables.</p><div class="project-links"><a href="https://github.com/kevinmneal/spea-climate-research">Research &amp; results <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Manuscript <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure map-figure">
+                <svg viewBox="0 0 220 150" fill="none" role="img" aria-label="A schematic contour map with illustrative points, not measured occurrence data.">
+                  <path class="figure-surface" d="m24 38 27-18 29 6 28-13 31 15 28-2 27 25-5 33 9 28-31 17-29-10-27 14-29-15-28 6-23-27 9-28z"/>
+                  <g class="map-contours"><path d="m35 87 21-28 22-5 17-20 24 15 22-5 19 24 21 3M41 103l22-26 23-6 14-18 22 15 17-5 18 23 27 2M57 113l19-21 20-4 10-16 17 15 14-7 17 24 19-1"/></g>
+                  <g class="map-points"><rect x="60" y="74" width="4" height="4"/><rect x="77" y="57" width="4" height="4"/><rect x="96" y="70" width="4" height="4"/><rect x="118" y="61" width="4" height="4"/><rect x="137" y="81" width="4" height="4"/><rect x="157" y="92" width="4" height="4"/></g>
+                </svg>
+                <figcaption>Schematic map</figcaption>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="packing">
+            <summary><span class="row-number" aria-hidden="true">03</span><span class="row-copy"><span class="row-title">Six triangles</span><span class="row-subtitle">An optimal packing, with replayable certificates</span></span><span class="row-category">geometry</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>A computer-assisted proof of the optimal packing of six unit equilateral triangles. Explore the geometry, read the preprint, or replay the exact certificates. Further Lean formalization is in progress.</p><div class="project-links"><a href="https://kevinmneal.github.io/six-triangle-packing/">Interactive explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/six-triangle-packing">Code &amp; proof <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure packing-figure">
+                <svg viewBox="35 50 427 376" fill="none" role="img" aria-label="The project's published arrangement of six unit equilateral triangles inside an equilateral triangle.">
+                  <g class="packing-triangles"><polygon points="55,406 185,406 120,293.41670"/><polygon points="312.02062,406 442.02062,406 377.02062,293.41670"/><polygon points="183.51031,183.41361 313.51031,183.41361 248.51031,70.83031"/><polygon points="173.67010,313.04065 290.85052,256.749 183.51031,183.41361"/><polygon points="185,406 313.51031,386.37604 232.26031,284.89483"/><polygon points="232.26031,284.89483 313.51031,386.37604 360.77062,265.27087"/></g>
+                  <path class="packing-boundary" d="M55 406H442.02062L248.51031 70.83031Z"/>
+                </svg>
+                <figcaption>Six unit triangles</figcaption>
+              </figure>
+            </div>
+          </details>
+          <details class="project" name="projects" data-scene="watermark">
+            <summary><span class="row-number" aria-hidden="true">04</span><span class="row-copy"><span class="row-title">LLM watermarking</span><span class="row-subtitle">Statistical signals in token choices</span></span><span class="row-category">explainer</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <div class="project-content">
+              <div class="project-description"><p>An interactive explanation of how statistical signals can be embedded in ordinary token choices. Experiment with a small teaching model and watch evidence accumulate.</p><div class="project-links"><a href="https://kevinmneal.github.io/llm-watermarking/">Try the explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/llm-watermarking">Source code <span aria-hidden="true">↗</span></a></div></div>
+              <figure class="project-figure watermark-figure">
+                <svg viewBox="0 0 220 145" fill="none" role="img" aria-label="Teaching illustration: highlighted token choices contribute to an aggregate signal.">
+                  <g class="token-boxes"><rect x="13" y="20" width="38" height="25"/><rect class="selected-token" x="58" y="20" width="69" height="25"/><rect class="selected-token" x="134" y="20" width="73" height="25"/></g>
+                  <g class="token-text"><text x="32" y="36">a</text><text class="selected-token-text" x="92" y="36">subtle</text><text class="selected-token-text" x="170" y="36">signal</text></g>
+                  <path class="figure-line" d="M110 58v22m-4-5 4 5 4-5M20 126h181"/>
+                  <path class="signal-line" d="M21 122h27v-6h27v3h27v-12h27v-5h27v4h27V91h17"/>
+                </svg>
+                <figcaption>Teaching illustration</figcaption>
+              </figure>
+            </div>
+          </details>
         </div>
       </section>
-      <section class="writing-section" id="writing" aria-labelledby="writing-title">
-        <div class="section-heading"><h2 id="writing-title"><span class="section-index" aria-hidden="true">02</span> Research &amp; writing</h2><a class="quiet-link" href="https://scholar.google.com/citations?user=L6ln8EwAAAAJ&amp;hl=en">Google Scholar <span aria-hidden="true">↗</span></a></div>
-        <p class="section-intro">My independent work ranges from biogeography to computer-assisted geometry. These are current manuscripts; the broader publication record is on Scholar.</p>
+
+      <section class="writing" aria-labelledby="writing-title">
+        <div class="section-heading"><h2 id="writing-title">Selected writing</h2><a href="https://scholar.google.com/citations?user=L6ln8EwAAAAJ&amp;hl=en">Scholar <span aria-hidden="true">↗</span></a></div>
         <ol class="papers">
-          <li><div class="paper-date"><time datetime="2026-10-15">2026.10</time><span>working manuscript</span></div><div class="paper-content"><h3><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Climate representation and geographical prediction of recorded <i>Spea</i> occurrences <span aria-hidden="true">↗</span></a></h3><p>Kevin M. Neal <span aria-hidden="true">·</span> Public research snapshot, v0.1.0</p></div></li>
-          <li><div class="paper-date"><time datetime="2026-10-08">2026.10</time><span>preprint</span></div><div class="paper-content"><h3><a href="https://github.com/kevinmneal/six-triangle-packing/releases/download/v1.0.0/six-triangle-packing-preprint-v1.0.0.pdf">A computer-assisted proof of the optimal packing of six equilateral triangles <span aria-hidden="true">↗</span></a></h3><p>Kevin M. Neal <span aria-hidden="true">·</span> Preprint v1.0.0 <span aria-hidden="true">·</span> PDF</p></div></li>
+          <li><span class="paper-kind">manuscript</span><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Climate representation and geographical prediction of recorded <i>Spea</i> occurrences <span aria-hidden="true">↗</span></a><time datetime="2026-10-15">2026</time></li>
+          <li><span class="paper-kind">preprint</span><a href="https://github.com/kevinmneal/six-triangle-packing/releases/download/v1.0.0/six-triangle-packing-preprint-v1.0.0.pdf">A computer-assisted proof of the optimal packing of six equilateral triangles <span aria-hidden="true">↗</span></a><time datetime="2026-10-08">2026</time></li>
         </ol>
       </section>
-      <section class="elsewhere-section" id="elsewhere" aria-labelledby="elsewhere-title">
-        <h2 id="elsewhere-title"><span class="section-index" aria-hidden="true">03</span> Elsewhere</h2>
-        <nav aria-label="Professional and scholarly profiles"><a rel="me" href="https://github.com/kevinmneal">GitHub <span aria-hidden="true">↗</span></a><a rel="me" href="https://orcid.org/0000-0003-4360-8027">ORCID <span aria-hidden="true">↗</span></a><a rel="me" href="https://www.researchgate.net/profile/Kevin-Neal-5">ResearchGate <span aria-hidden="true">↗</span></a><a rel="me" href="https://www.linkedin.com/in/kevinmneal/">LinkedIn <span aria-hidden="true">↗</span></a></nav>
-      </section>
     </main>
-    <footer class="site-footer"><span>© 2026 Kevin M. Neal</span><span><span class="footer-prompt" aria-hidden="true">~</span> stay curious.</span></footer>
+    <footer><nav aria-label="Professional and scholarly profiles"><a rel="me" href="https://github.com/kevinmneal">GitHub</a><a rel="me" href="https://orcid.org/0000-0003-4360-8027">ORCID</a><a rel="me" href="https://www.researchgate.net/profile/Kevin-Neal-5">ResearchGate</a><a rel="me" href="https://www.linkedin.com/in/kevinmneal/">LinkedIn</a></nav><span class="copyright">© 2026</span></footer>
   </div>
 </body>
 </html>

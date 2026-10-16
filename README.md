@@ -8,22 +8,30 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 
 - `docs/index.html`: profile, public projects, manuscripts, and scholarly links.
 - `docs/styles.css`: responsive layout and Solarized dark/light themes.
-- `docs/site.js`: remembered theme preference and the spadefoot greeting.
-- `docs/assets/spadefoot.png`: owner-supplied pixel-art avatar.
+- `docs/site.js`: theme preference, expandable projects, and animation controls.
+- `docs/companion.js`: the persistent spadefoot's contextual animations.
+- `docs/assets/companion/`: three sixteen-pose sprite atlases and frame metadata.
+- `docs/assets/spadefoot.png`: original owner-supplied character reference.
 - `docs/favicon.svg`: small spadefoot icon.
 - `docs/CNAME`: custom domain.
 
-The default theme is dark. The theme switch remembers a visitor's choice locally. The page remains readable without JavaScript, and animation respects reduced-motion preferences. No contact address is currently published.
+The default theme is dark. The theme switch remembers a visitor's choice locally. Opening a project reveals its text and figure while the companion plays a related action once. Replay and pause are available; reduced-motion preferences show a still frame. The content remains readable without JavaScript. No contact address is published.
 
 Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. Project descriptions should reflect their linked public releases; distinguish working manuscripts and preprints from peer-reviewed publications.
 
 ## Local preview
 
+The earlier design experiments are preserved in [`previews/spadefoot-scenes/`](previews/spadefoot-scenes/README.md) and [`previews/spadefoot-scenes-v1/`](previews/spadefoot-scenes-v1/README.md). Production edits belong in `docs/`. [Artwork provenance and generation prompts](previews/spadefoot-scenes/ARTWORK-v2.md) accompany the original generated files.
+
 ```sh
 python3 -m http.server 8765 --bind 127.0.0.1 --directory docs
 ```
 
-Open http://127.0.0.1:8765/. The page can also be opened directly from `docs/index.html`.
+Open http://127.0.0.1:8765/. Serve over HTTP for the JavaScript modules and frame metadata; direct file opening is not the complete interactive preview.
+
+## Verification
+
+Run `node scripts/check-companion.mjs` for animation lifecycle checks, including asset retry, rapid selection, reduced motion, and unavailable canvas fallback. Also run `node --check docs/site.js`, `node --check docs/companion.js`, and `git diff --check`. Use a browser to inspect both themes and desktop/mobile layouts; the mocked canvas checks do not verify appearance.
 
 ## Publishing
 

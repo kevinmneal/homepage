@@ -1,0 +1,13 @@
+# Spadefoot character artwork
+
+This records the original four-pose experiment. The active companion uses the sixteen-pose atlases documented in [ARTWORK-v2.md](ARTWORK-v2.md).
+
+Generated on October 15, 2026 with the built-in ImageGen tool, using the owner's existing `docs/assets/spadefoot.png` as the character/style reference. No CLI/API fallback was used.
+
+Output: `assets/spadefoot-poses.png`, RGBA, 1254 × 1254 pixels with actual transparency. The source output is preserved unchanged; canvas source rectangles select the four poses without modifying the image. Runtime props and movement are drawn in `scenes.js`.
+
+The atlas has a 2 × 2 grid of 627-pixel cells: idle, reaching, inspecting, pressing. Their ground baselines differ and are compensated in code. The illustration is independent of the site's real research results; only the packing scene's final polygon arrangement comes from the published project figure.
+
+## Generation prompt
+
+Use case: stylized-concept. Asset type: transparent game sprite atlas for a restrained professional personal website, animated via code. Reference image: the supplied pixel-art spadefoot at a laptop; use it ONLY for the identity, speckled ochre/tan skin, dark rounded eyes, creamy belly, and crisp outlined pixel-art style. Primary request: create ONE square sprite sheet with exactly FOUR separate full-body poses of the SAME small spadefoot toad in an exactly even 2 columns by 2 rows grid. True transparent background; no grid lines. Each cell is the same size; each toad is centered on the same local baseline, all at identical scale, every body part has 15 percent margin inside its cell. All four face RIGHT in a three-quarter side view. Top left: neutral squat seated pose, front paws resting naturally. Top right: same toad reaching forward toward the right with one front paw extended, as if nudging a small object. Bottom left: same toad leaning its head and body down and forward toward the right to inspect something. Bottom right: same toad with the front right paw pressed down, a little forward, as if pressing a stamp. No props at all; the objects will be animated separately in code. No laptop, coffee, clothes, floor, shadows, background, text, cell labels, borders, or decorative accents. Keep the recognizable spadefoot anatomy and calm alert expression. Less babyish than the reference, no huge smile, no humanlike fingers. Crisp economical pixel art with a limited warm ochre, cream, slate outline palette that reads at 80px tall; hard edges, no blur. Generous true transparent gaps between four sprites. Output should be square, preferably 1024x1024.

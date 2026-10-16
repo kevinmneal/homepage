@@ -2,10 +2,20 @@
  * MAKE HOP! — deterministic, mutable game state with no browser dependencies.
  *
  * All times are seconds. Player height is feet above the ground; velocity is
- * positive upward. Obstacle x is its left edge, with its base at WORLD.ground.
+ * positive upward. Obstacle x is its left edge and y is its BOTTOM edge in
+ * screen coordinates. Ground kinds use y=WORLD.ground; moths use y=191 and are
+ * safe to run under. phase is a visual angle in radians. All kinds share the
+ * same scroll speed, so a tumbleweed cannot catch another obstacle.
  * Fireflies and events use screen coordinates. Call jump/shout for input, then
  * stepRun for elapsed time. Drain events with run.events.splice(0); the bounded
  * queue preserves input events until the renderer consumes them.
+ *
+ * stage advances 0 -> 1 at 15 s -> 2 at 30 s (rock, then tumbleweed, then moth).
+ * blast is null or {x,previousX,y,age,radius,thickness,speed,originX,reach}.
+ * Its x is the traveling front, radius its vertical reach, and thickness its
+ * horizontal contact width. clear events add kind,width,height,angle,vx,vy;
+ * those velocities are screen-space pixels/second for the renderer's debris.
+ * stage events add stage. Every event retains type,x,y.
  *
  * stepRun uses 120 Hz physics and accepts at most 0.25 s per call. Longer pauses
  * are discarded so returning to the tab cannot produce a catch-up death.
@@ -17,22 +27,23 @@ export const WORLD = Object.freeze({ width: 900, height: 340, ground: 266, playe
 const TICK = 1 / 120;
 const MAX_ELAPSED = 0.25;
 const START_SPEED = 210;
-const MAX_SPEED = 340;
-const ACCELERATION = 2.2;
+const MAX_SPEED = 370;
+const ACCELERATION = 2;
 const JUMP_VELOCITY = 540;
 const GRAVITY = 1500;
 const PLAYER_HALF_WIDTH = 14;
 const PLAYER_BODY_HEIGHT = 36;
-const MAX_ROCK_WIDTH = 46;
-const MIN_ROCK_GAP = 480;
+const MIN_OBSTACLE_GAP = 520;
 const HURT_GRACE = 1.2;
-const SHOUT_RANGE = 320;
+const SHOUT_REACH = 440;
+const SHOUT_SPEED = 720;
 const CHARGE_SECONDS = 5;
 const EVENT_LIMIT = 96;
+const TAU = Math.PI * 2;
 
-// At maximum speed the widest rock plus the player's width leaves >0.47 s
-// between complete jump windows: 480 - 46 - 28 > 340 * (0.72 + 0.47).
-// Rocks never move vertically, cluster, or require a midair second jump.
+// At maximum speed the widest obstacle plus the player's width leaves >0.46 s
+// beyond a complete jump: (520 - 54 - 28) / 370 > 0.72 + 0.46.
+// Ground obstacles can be hopped; every moth can be passed without jumping.
 
 function random(run) {
   let value = run._rng;
@@ -43,8 +54,8 @@ function random(run) {
   return run._rng / 4294967296;
 }
 
-function emit(run, type, x = WORLD.playerX, y = WORLD.ground - run.player.height - 22) {
-  run.events.push({ type, x, y });
+function emit(run, type, x = WORLD.playerX, y = WORLD.ground - run.player.height - 22, details = {}) {
+  run.events.push({ type, x, y, ...details });
   if (run.events.length > EVENT_LIMIT) run.events.splice(0, run.events.length - EVENT_LIMIT);
 }
 
@@ -64,6 +75,8 @@ export function createRun(seed = 0x5ea12345) {
     obstacles: [],
     fireflies: [],
     charge: 1,
+    blast: null,
+    stage: 0,
     invulnerable: 0,
     status: 'running',
     events: [],
@@ -72,6 +85,7 @@ export function createRun(seed = 0x5ea12345) {
     _ticks: 0,
     _nextId: 1,
     _nextObstacleDistance: 0,
+    _introducedStage: 0,
     _bonusScore: 0,
   };
 }
@@ -84,40 +98,94 @@ export function jump(run) {
   return true;
 }
 
-/** Spend a full charge, clearing rocks up to 320 px ahead for 15 points each. */
+/** Spend a full charge to launch a force front; clearing happens in stepRun. */
 export function shout(run) {
-  if (run.status !== 'running' || run.charge < 1 - 1e-9) return false;
+  if (run.status !== 'running' || run.charge < 1 - 1e-9 || run.blast) return false;
   run.charge = 0;
+  run.blast = {
+    x: WORLD.playerX,
+    previousX: WORLD.playerX,
+    y: WORLD.ground - run.player.height - 22,
+    age: 0,
+    radius: 110,
+    thickness: 18,
+    speed: SHOUT_SPEED,
+    originX: WORLD.playerX,
+    reach: SHOUT_REACH,
+  };
   emit(run, 'shout');
-  run.obstacles = run.obstacles.filter(rock => {
-    const inFront = rock.x + rock.width >= WORLD.playerX - PLAYER_HALF_WIDTH;
-    if (!inFront || rock.x > WORLD.playerX + SHOUT_RANGE) return true;
-    run._bonusScore += 15;
-    emit(run, 'clear', rock.x + rock.width / 2, WORLD.ground - rock.height / 2);
-    return false;
-  });
-  updateScore(run);
   return true;
+}
+
+function obstacleKind(run) {
+  // The first spawn after a milestone shows the newly introduced obstacle.
+  if (run.stage > run._introducedStage) {
+    run._introducedStage = run.stage;
+    return run.stage === 1 ? 'tumbleweed' : 'moth';
+  }
+  if (run.stage === 0) return 'rock';
+  const roll = random(run);
+  if (run.stage === 2 && roll < 0.3) return 'moth';
+  return roll < (run.stage === 1 ? 0.45 : 0.65) ? 'tumbleweed' : 'rock';
 }
 
 function spawn(run) {
   if (run.distance < run._nextObstacleDistance) return;
   // Subtract threshold overshoot to preserve exact spacing across frame rates.
   const x = WORLD.width + 40 - (run.distance - run._nextObstacleDistance);
-  const width = 28 + Math.floor(random(run) * (MAX_ROCK_WIDTH - 28 + 1));
-  const height = 30 + Math.floor(random(run) * 27);
-  run.obstacles.push({ id: run._nextId++, x, width, height, kind: 'rock' });
-  const fireflyY = WORLD.ground - (92 + Math.floor(random(run) * 24));
+  const kind = obstacleKind(run);
+  const width = kind === 'rock' ? 28 + Math.floor(random(run) * 19)
+    : kind === 'tumbleweed' ? 40 + Math.floor(random(run) * 11)
+      : 46 + Math.floor(random(run) * 9);
+  const height = kind === 'rock' ? 30 + Math.floor(random(run) * 27)
+    : kind === 'tumbleweed' ? width : 26 + Math.floor(random(run) * 5);
+  const y = kind === 'moth' ? 191 : WORLD.ground;
+  run.obstacles.push({ id: run._nextId++, x, y, width, height, kind, phase: random(run) * TAU });
+  // Ground fireflies reward a hop; moth fireflies reward running safely below.
+  const fireflyY = kind === 'moth' ? WORLD.ground - 22
+    : WORLD.ground - (92 + Math.floor(random(run) * 24));
   for (const offset of [-65, 45]) {
     run.fireflies.push({ id: run._nextId++, x: x + offset, y: fireflyY });
   }
-  run._nextObstacleDistance += MIN_ROCK_GAP + random(run) * 200;
+  run._nextObstacleDistance += MIN_OBSTACLE_GAP + random(run) * 180;
+}
+
+function advanceBlast(run, movement) {
+  const blast = run.blast;
+  if (!blast) return;
+  blast.previousX = blast.x;
+  blast.age += TICK;
+  blast.x = Math.min(blast.originX + blast.reach, blast.x + blast.speed * TICK);
+  const sweptLeft = blast.previousX - blast.thickness / 2;
+  const sweptRight = blast.x + blast.thickness / 2;
+  run.obstacles = run.obstacles.filter(obstacle => {
+    const bottom = obstacle.y ?? WORLD.ground;
+    const inSweep = obstacle.x <= sweptRight && obstacle.x + obstacle.width + movement >= sweptLeft;
+    const inHeight = bottom > blast.y - blast.radius && bottom - obstacle.height < blast.y + blast.radius;
+    if (!inSweep || !inHeight) return true;
+    run._bonusScore += 15;
+    emit(run, 'clear', obstacle.x + obstacle.width / 2, bottom - obstacle.height / 2, {
+      kind: obstacle.kind,
+      width: obstacle.width,
+      height: obstacle.height,
+      angle: obstacle.phase ?? 0,
+      vx: 360 + (obstacle.id % 5) * 28,
+      vy: -220 - (obstacle.id % 4) * 25,
+    });
+    return false;
+  });
+  if (blast.x >= blast.originX + blast.reach) run.blast = null;
 }
 
 function tick(run) {
   run._ticks += 1;
   run.time = run._ticks * TICK;
   run.speed = Math.min(MAX_SPEED, START_SPEED + ACCELERATION * run.time);
+  const stage = run.time >= 30 ? 2 : run.time >= 15 ? 1 : 0;
+  if (stage !== run.stage) {
+    run.stage = stage;
+    emit(run, 'stage', WORLD.playerX, WORLD.ground - 80, { stage });
+  }
   const movement = run.speed * TICK;
   run.distance += movement;
   run.invulnerable = Math.max(0, run.invulnerable - TICK);
@@ -132,19 +200,29 @@ function tick(run) {
     }
   }
 
-  for (const rock of run.obstacles) rock.x -= movement;
+  for (const obstacle of run.obstacles) {
+    obstacle.x -= movement;
+    if (obstacle.kind === 'tumbleweed') {
+      obstacle.phase = ((obstacle.phase ?? 0) - movement / (obstacle.height / 2) + TAU) % TAU;
+    } else if (obstacle.kind === 'moth') {
+      obstacle.phase = ((obstacle.phase ?? 0) + TICK * 14) % TAU;
+    }
+  }
   for (const firefly of run.fireflies) firefly.x -= movement;
   spawn(run);
+  advanceBlast(run, movement);
 
   const feetY = WORLD.ground - run.player.height;
   const left = WORLD.playerX - PLAYER_HALF_WIDTH;
   const right = WORLD.playerX + PLAYER_HALF_WIDTH;
-  run.obstacles = run.obstacles.filter(rock => {
-    if (rock.x + rock.width < -40) return false;
-    const touching = right > rock.x && left < rock.x + rock.width &&
-      feetY - 3 > WORLD.ground - rock.height && feetY - PLAYER_BODY_HEIGHT < WORLD.ground;
+  run.obstacles = run.obstacles.filter(obstacle => {
+    if (obstacle.x + obstacle.width < -40) return false;
+    const bottom = obstacle.y ?? WORLD.ground;
+    const inset = obstacle.kind === 'moth' ? 6 : 3;
+    const touching = right > obstacle.x + inset && left < obstacle.x + obstacle.width - inset &&
+      feetY - 3 > bottom - obstacle.height + 3 && feetY - PLAYER_BODY_HEIGHT < bottom - 3;
     if (!touching) return true;
-    // A touched rock is removed even during grace, so it cannot hit twice.
+    // A touched obstacle is removed even during grace, so it cannot hit twice.
     if (run.invulnerable === 0 && run.lives > 0) {
       run.lives -= 1;
       run.invulnerable = HURT_GRACE;

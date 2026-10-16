@@ -12,8 +12,8 @@
   <link rel="canonical" href="https://kevinmneal.com/">
   <title>Kevin M. Neal</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./styles.css?v=20261015-hop">
-  <script src="./site.js?v=20261015-hop" type="module"></script>
+  <link rel="stylesheet" href="./styles.css?v=20261016-hop-v2">
+  <script src="./site.js?v=20261016-hop-v2" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -28,18 +28,19 @@
     <main id="main" class="layout" tabindex="-1">
       <section class="intro" aria-labelledby="name">
         <h1 id="name">Kevin M. Neal<span class="degree">, PhD</span></h1>
-        <p class="discipline">AI engineer &amp; evolutionary biologist</p>
+        <p class="discipline">Applied AI engineer &amp; evolutionary biologist</p>
         <p class="bio">Principal Engineer at Fortegra, with a PhD from UCLA. I build dependable AI systems and pursue independent research in biogeography and computational mathematics.</p>
       </section>
 
       <aside id="companion-rail" class="companion-rail" aria-label="Animated spadefoot companion" hidden>
         <div class="companion-stage">
-          <button id="companion-secret" class="companion-secret" type="button" aria-label="Spadefoot companion. Open a secret hopping game" aria-haspopup="dialog" title="Psst… three taps for a field trip.">
+          <button id="companion-secret" class="companion-secret" type="button" aria-label="Spadefoot companion. Open a secret hopping game" aria-haspopup="dialog" title="A suspiciously curious spadefoot.">
             <canvas id="companion" width="400" height="340" aria-hidden="true"></canvas>
           </button>
         </div>
         <div class="companion-meta">
           <p id="companion-label" aria-live="polite" aria-atomic="true">At rest</p>
+          <p id="companion-hint" class="companion-hint" aria-live="polite"></p>
           <div class="companion-controls">
             <button id="companion-replay" type="button" aria-label="Replay the spadefoot animation" hidden>replay</button>
             <button id="companion-pause" type="button" aria-label="Pause the spadefoot animation" hidden>pause</button>
@@ -91,7 +92,7 @@
             </div>
           </details>
         </div>
-        <p class="other-experiments">Other experiments: <a href="https://kevinmneal.github.io/llm-watermarking/">LLM watermarking explainer <span aria-hidden="true">↗</span></a></p>
+        <p class="other-experiments">Other experiments: <a href="https://kevinmneal.github.io/llm-watermarking/">LLM watermarking explainer <span aria-hidden="true">↗</span></a> · <a href="./lab/">Lab &amp; games <span aria-hidden="true">↗</span></a></p>
       </section>
 
       <section class="about" aria-label="Personal background">
@@ -126,8 +127,9 @@
   <dialog id="hop-dialog" class="hop-dialog" aria-labelledby="hop-title" aria-describedby="hop-instructions">
     <header class="hop-header">
       <div><p class="hop-eyebrow">you found a field trip</p><h2 id="hop-title">MAKE HOP!</h2></div>
-      <button id="hop-close" class="hop-close" type="button" aria-label="Close the hopping game">close <span aria-hidden="true">×</span></button>
+      <div class="hop-header-actions"><button id="hop-sound" class="hop-sound" type="button" aria-pressed="false">sound off</button><button id="hop-close" class="hop-close" type="button" aria-label="Close the hopping game"><span aria-hidden="true">×</span></button></div>
     </header>
+    <div class="hop-runline"><span id="hop-stage">Quiet dunes</span><span>pace <strong id="hop-pace">1.0×</strong></span></div>
     <div class="hop-scoreboard" aria-label="Game statistics">
       <span>score <strong id="hop-score">0</strong></span>
       <span>fireflies <strong id="hop-fireflies">0</strong></span>
@@ -139,7 +141,7 @@
       <div id="hop-overlay" class="hop-overlay">
         <div class="hop-card">
           <h3 id="hop-card-title">A very small adventure.</h3>
-          <p id="hop-card-copy">Hop over rocks. Catch fireflies. Make a little noise.</p>
+          <p id="hop-card-copy">Hop over rocks and rolling tumbleweeds. Stay low for moths. Make a lot of noise.</p>
           <button id="hop-start" class="hop-start" type="button" disabled>Waking up…</button>
         </div>
       </div>
@@ -149,7 +151,7 @@
       <button id="hop-shout" class="hop-action hop-shout" type="button" aria-label="Make way! Shout with F"><span>make way! <kbd>F</kbd></span><span class="hop-charge" aria-hidden="true"><span id="hop-charge-fill"></span></span></button>
       <button id="hop-pause" class="hop-pause" type="button" hidden>pause <kbd>P</kbd></button>
     </div>
-    <p id="hop-instructions" class="hop-instructions">Tap the field or press Space to hop. Your croak clears nearby rocks and recharges. Three hearts. A little dignity.</p>
+    <p id="hop-instructions" class="hop-instructions">Tap the field or press Space to hop. Run under high moths. F sends obstacles flying. Your croak recharges; fireflies help. Three hearts. A little dignity.</p>
     <p id="hop-status" class="hop-status" role="status" aria-live="polite">Take your time. The desert can wait.</p>
   </dialog>
 </body>

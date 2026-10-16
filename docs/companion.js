@@ -146,6 +146,7 @@ function watermarkScene(ctx, t, p, atlases, finished, drawPose) {
 }
 const PAINT = { insurance: typingScene, ecology: mapScene, packing: packingScene, watermark: watermarkScene };
 const REQUIRED = { idle: ['hop'], insurance: ['hop','typing'], ecology: ['hop','map'], packing: ['hop'], watermark: ['hop','typing'] };
+const REACTIONS = { curious: 560, happy: 640, croak: 720 };
 
 export function createCompanion(canvas) {
   const ctx = canvas.getContext('2d');
@@ -172,9 +173,10 @@ export function createCompanion(canvas) {
   const atlases = {};
   let kind = 'idle', time = 0, playing = false, ready = false, destroyed = false;
   let frameId = 0, startTime = 0, selection = 0;
+  let reaction = null, autoplay = true;
   function report(error = null) {
     canvas.dispatchEvent(new CustomEvent('companionstate', {
-      detail: { kind, playing, ready, reducedMotion: motion.matches, error },
+      detail: { kind, playing, ready, reducedMotion: motion.matches, reaction: reaction?.kind ?? null, error },
     }));
   }
   function draw() {
@@ -182,7 +184,19 @@ export function createCompanion(canvas) {
     ctx.setTransform(canvas.width / WIDTH, 0, 0, canvas.height / HEIGHT, 0, 0);
     ctx.clearRect(0, 0, WIDTH, HEIGHT); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const p = palette();
-    if (kind === 'idle' || !ready) {
+    if (reaction) {
+      // Reuse the resting/crouching poses already in memory. A reaction briefly
+      // replaces the picture, then returns to the selected scene where it stopped.
+      const progress = clamp(reaction.time / REACTIONS[reaction.kind]);
+      const pulse = Math.sin(progress * Math.PI);
+      const curious = reaction.kind === 'curious';
+      const happy = reaction.kind === 'happy';
+      const pose = curious ? 0 : progress < .2 || progress > .8 ? 0 : progress < .38 || progress > .62 ? 1 : 2;
+      ground(ctx, p);
+      sprite(ctx, atlases.hop, pose, 200 + (curious ? pulse * 6 : 0),
+        278 - (happy ? pulse * 12 : 0), .72 * (reaction.kind === 'croak' ? 1 + pulse * .06 : 1),
+        curious ? pulse * -.06 : 0);
+    } else if (kind === 'idle' || !ready) {
       ground(ctx, p); sprite(ctx, atlases.hop, 0, 200, 278, 0.72);
     } else PAINT[kind](ctx, time / 1000, p, atlases, time >= DURATIONS[kind], drawPose);
   }
@@ -193,10 +207,24 @@ export function createCompanion(canvas) {
     draw();
   }
   function stop() {
-    playing = false; cancelAnimationFrame(frameId); frameId = 0; report();
+    playing = false; cancelAnimationFrame(frameId); frameId = 0;
+    const wasReacting = Boolean(reaction); reaction = null;
+    if (wasReacting) draw();
+    report();
   }
   function tick(now) {
-    if (!playing || destroyed) return;
+    frameId = 0;
+    if (destroyed) return;
+    if (reaction) {
+      reaction.time = Math.max(0, now - reaction.started);
+      if (reaction.time >= REACTIONS[reaction.kind]) {
+        reaction = null; draw(); report();
+      } else {
+        draw(); frameId = requestAnimationFrame(tick);
+      }
+      return;
+    }
+    if (!playing) return;
     time = Math.min(DURATIONS[kind], now - startTime); draw();
     if (time < DURATIONS[kind]) frameId = requestAnimationFrame(tick); else stop();
   }
@@ -209,13 +237,21 @@ export function createCompanion(canvas) {
   async function select(nextKind = 'idle') {
     if (destroyed || !REQUIRED[nextKind]) return;
     const ticket = ++selection;
-    stop(); kind = nextKind; ready = false; time = 0; report(); draw();
+    stop(); autoplay = true; kind = nextKind; ready = false; time = 0; report(); draw();
     try {
       await Promise.all(REQUIRED[kind].map(async name => { atlases[name] ??= await loadAtlas(name); }));
       if (destroyed || ticket !== selection) return;
       ready = true; resize();
-      if (kind !== 'idle') play(); else report();
+      if (kind !== 'idle' && autoplay) play(); else report();
     } catch (error) { if (ticket === selection && !destroyed) report(error.message); }
+  }
+  function react(nextReaction) {
+    if (destroyed || !Object.hasOwn(REACTIONS, nextReaction)) return;
+    // Never let an in-flight project load restart playback after an interaction.
+    autoplay = false; stop();
+    if (motion.matches || document.hidden || !atlases.hop) return;
+    reaction = { kind: nextReaction, started: performance.now(), time: 0 };
+    draw(); frameId = requestAnimationFrame(tick); report();
   }
   function onMotionChange() {
     if (motion.matches) { stop(); time = DURATIONS[kind]; draw(); }
@@ -224,7 +260,7 @@ export function createCompanion(canvas) {
   const observer = new ResizeObserver(resize);
   observer.observe(canvas); motion.addEventListener('change', onMotionChange); select('idle');
   return {
-    select, replay: play, pause: stop, redraw: resize,
+    select, react, replay: play, pause: stop, redraw: resize,
     destroy() { stop(); destroyed = true; selection++; observer.disconnect(); motion.removeEventListener('change', onMotionChange); },
   };
 }

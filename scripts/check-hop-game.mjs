@@ -5,6 +5,8 @@ import test from 'node:test';
 // Exercise the real game/controller and model with a small DOM/canvas adapter.
 // Browser layout, native dialog behavior, and rendered pixels need browser QA.
 const metadata = JSON.parse(fs.readFileSync(new URL('../docs/assets/companion/frames.json', import.meta.url), 'utf8'));
+const generated = JSON.parse(fs.readFileSync(new URL('../docs/assets/game/frames-v2.json', import.meta.url), 'utf8'));
+const atlasMetadata = { hop: metadata.hop, croak: generated.croak, hazards: generated.hazards };
 const html = fs.readFileSync(new URL('../docs/index.html', import.meta.url), 'utf8');
 let fixtureNumber = 0;
 const flush = async () => { for (let i = 0; i < 16; i++) await Promise.resolve(); };
@@ -43,7 +45,7 @@ async function withGame(options, check) {
   };
   let now = 1, nextFrame = 0, fetchCount = 0, imageCount = 0;
   const frames = new Map(), pendingLoads = [], saved = new Map();
-  const stats = { sprite: null, labels: [], draws: 0 };
+  const stats = { sprite: null, labels: [], hazards: [], blasts: [], draws: 0 };
   const elements = new Map([...html.matchAll(/<(\w+)\b[^>]*\bid="hop-([^"]+)"/g)]
     .map(([, tag, id]) => [id, new Element(tag)]));
   const el = id => {
@@ -66,22 +68,37 @@ async function withGame(options, check) {
   dialog.open = false;
   dialog.showModal = () => { dialog.open = true; el('close').focus(); };
   dialog.close = () => { dialog.open = false; dialog.dispatch('close'); };
-  const ctx = new Proxy({}, {
+  const state = { globalAlpha: 1, x: 0, y: 0 }, stack = [];
+  const ctx = new Proxy(state, {
     get(target, key) {
       if (key in target) return target[key];
       return (...args) => {
         for (const value of args) if (typeof value === 'number') assert(Number.isFinite(value), `${String(key)} coordinate is finite`);
-        if (key === 'setTransform') { stats.labels = []; stats.draws++; }
+        if (key === 'save') stack.push({ ...state });
+        if (key === 'restore') { assert(stack.length > 0, 'Canvas restore has a matching save'); Object.assign(state, stack.pop()); }
+        if (key === 'translate') { state.x += args[0]; state.y += args[1]; }
+        if (key === 'setTransform') {
+          assert.equal(stack.length, 0, 'Each frame restores its drawing state');
+          state.x = 0; state.y = 0; stats.labels = []; stats.hazards = []; stats.blasts = []; stats.draws++;
+        }
         if (key === 'ellipse') assert(args[2] >= 0 && args[3] >= 0, 'Ellipse radii stay nonnegative');
         if (key === 'arc') assert(args[2] >= 0, 'Arc radius stays nonnegative');
         if (key === 'fillText') stats.labels.push(args[0]);
+        if (key === 'bezierCurveTo' && state.strokeStyle === '#64d5c7') stats.blasts.push({ x: args[0] - 38, alpha: state.globalAlpha });
         if (key === 'drawImage') {
-          const [, sx, sy, sw, sh, dx, dy, dw, dh] = args;
+          const [image, sx, sy, sw, sh, dx, dy, dw, dh] = args;
           assert.equal(args.length, 9);
           assert(sx >= 0 && sy >= 0 && sw > 0 && sh > 0);
-          assert(sx + sw <= metadata.hop.width && sy + sh <= metadata.hop.height, 'Sprite uses an in-bounds atlas crop');
+          const source = atlasMetadata[image.atlas];
+          assert(source, 'Image has a recognized atlas');
+          assert(sx + sw <= source.width && sy + sh <= source.height, 'Sprite uses an in-bounds atlas crop');
+          const index = source.frames.findIndex(rect => rect.every((n, i) => n === [sx, sy, sw, sh][i]));
+          assert(index >= 0, 'Sprite rectangle matches its own atlas metadata');
           assert(dw > 0 && dh > 0);
-          stats.sprite = { feet: dy + dh, x: dx, source: [sx, sy, sw, sh] };
+          assert(state.globalAlpha >= 0 && state.globalAlpha <= 1, 'Sprite alpha is valid');
+          const draw = { atlas: image.atlas, index, feet: state.y + dy + dh, x: state.x + dx, source: [sx, sy, sw, sh] };
+          if (image.atlas === 'hazards') stats.hazards.push(draw);
+          else stats.sprite = draw;
         }
       };
     },
@@ -103,16 +120,21 @@ async function withGame(options, check) {
   });
   install('Image', class {
     set src(value) {
-      assert(value.endsWith('/assets/companion/hop.png'));
-      const fail = options.failImageOnce && ++imageCount === 1;
+      const name = new URL(value).pathname.split('/').at(-1);
+      this.atlas = { 'hop.png': 'hop', 'croak-v2.png': 'croak', 'hazards-v2.png': 'hazards' }[name];
+      assert(this.atlas, `Known image asset: ${name}`);
+      const attempt = ++imageCount;
+      const fail = (options.failImageOnce && attempt === 1) || (options.failHazardsOnce && attempt === 3);
       queueMicrotask(() => fail ? this.onerror() : this.onload());
     }
   });
   install('fetch', async url => {
-    assert(String(url).endsWith('/assets/companion/frames.json'));
+    const isOriginal = String(url).endsWith('/assets/companion/frames.json');
+    assert(isOriginal || String(url).endsWith('/assets/game/frames-v2.json'));
     const attempt = ++fetchCount;
     if (options.delayed) await new Promise(resolve => pendingLoads.push(resolve));
-    return { ok: !(options.failMetadataOnce && attempt === 1), json: async () => metadata };
+    return { ok: !((options.failMetadataOnce && attempt === 1) || (options.failGeneratedMetadataOnce && attempt === 2)),
+      json: async () => isOriginal ? metadata : generated };
   });
   const advance = milliseconds => {
     for (let remaining = milliseconds; remaining > 0;) {
@@ -127,6 +149,7 @@ async function withGame(options, check) {
     await check({ el, opener, dialog, canvas, motion, document: documentMock, window: windowMock,
       frames, stats, saved, bodyClasses, advance, open: openHopGame,
       fetchCount: () => fetchCount,
+      imageCount: () => imageCount,
       resolveLoads: async () => { pendingLoads.splice(0).forEach(resolve => resolve()); await flush(); },
       click: id => { if (!el(id).disabled) el(id).dispatch('click'); },
       key: (key, values = {}) => dialog.dispatch('keydown', { key, target: canvas, ...values }),
@@ -145,10 +168,16 @@ test('open, pause, automatic suspension, close, and reopen preserve the expected
     assert(g.dialog.open && g.bodyClasses.has('hop-open'));
     assert(g.el('start').disabled);
     await flush();
-    assert.equal(g.fetchCount(), 1);
+    assert.equal(g.fetchCount(), 2);
+    assert.equal(g.imageCount(), 3);
     assert.equal(g.document.activeElement, g.el('start'));
     assert.equal(g.frames.size, 0, 'Ready screen does not run physics');
     g.click('start'); g.advance(1000);
+    const scoreBeforeDuplicateOpen = g.el('score').textContent;
+    g.open(); await flush();
+    assert.equal(g.el('score').textContent, scoreBeforeDuplicateOpen, 'An already-open game keeps its current run');
+    assert.equal(g.fetchCount(), 2);
+    assert.equal(g.frames.size, 1);
     assert.equal(g.document.activeElement, g.canvas);
     assert(g.el('overlay').hidden);
     assert(Number(g.el('score').textContent) > 0);
@@ -175,7 +204,8 @@ test('open, pause, automatic suspension, close, and reopen preserve the expected
     assert.equal(g.document.activeElement, g.opener);
     assert(Number(g.saved.get('kmn-hop-best-v1')) > 0);
     g.open(); await flush();
-    assert.equal(g.fetchCount(), 1, 'Reopen reuses loaded artwork');
+    assert.equal(g.fetchCount(), 2, 'Reopen reuses both loaded metadata files');
+    assert.equal(g.imageCount(), 3, 'Reopen reuses all three images');
     assert.equal(g.el('score').textContent, '0');
     assert.equal(g.frames.size, 0);
   });
@@ -188,13 +218,13 @@ test('closing during load cannot steal focus, and reopening uses only the curren
     assert.equal(g.frames.size, 0);
     assert(!g.dialog.open);
     g.open(); await flush();
-    assert.equal(g.fetchCount(), 1);
+    assert.equal(g.fetchCount(), 2);
     assert.equal(g.document.activeElement, g.el('start'));
     assert(!g.el('start').disabled);
   });
   await withGame({ delayed: true }, async g => {
     g.open(); g.click('close'); g.open(); await g.resolveLoads();
-    assert.equal(g.fetchCount(), 1);
+    assert.equal(g.fetchCount(), 2);
     assert.equal(g.document.activeElement, g.el('start'));
     assert.equal(g.frames.size, 0);
     g.click('start'); assert.equal(g.frames.size, 1);
@@ -202,14 +232,15 @@ test('closing during load cannot steal focus, and reopening uses only the curren
 });
 
 test('artwork failures can be retried without starting duplicate loops', async () => {
-  for (const failure of ['failMetadataOnce', 'failImageOnce']) {
+  for (const failure of ['failMetadataOnce', 'failGeneratedMetadataOnce', 'failImageOnce', 'failHazardsOnce']) {
     await withGame({ [failure]: true }, async g => {
       g.open(); await flush();
       assert.equal(g.el('start').textContent, 'Try again');
       assert(!g.el('start').disabled);
       assert.equal(g.frames.size, 0);
       g.click('start'); await flush();
-      assert.equal(g.fetchCount(), 2);
+      assert.equal(g.fetchCount(), 4);
+      assert.equal(g.imageCount(), 6);
       assert.equal(g.el('start').textContent, 'Let’s hop');
       g.click('start'); g.advance(100);
       assert.equal(g.frames.size, 1);
@@ -220,10 +251,14 @@ test('artwork failures can be retried without starting duplicate loops', async (
 test('keyboard and pointer controls respect buttons, repeats, modifiers, and reduced motion', async () => {
   await withGame({ mobile: true, light: true, storageUnavailable: true }, async g => {
     g.open(); await flush(); g.click('start'); g.advance(20);
-    for (const key of [' ', 'ArrowUp']) assert(g.key(key, { repeat: true }).defaultPrevented);
+    for (const key of [' ', 'ArrowUp', 'f', 'p']) assert(g.key(key, { repeat: true }).defaultPrevented);
     assert(!g.key(' ', { target: g.el('jump') }).defaultPrevented, 'Button keeps native Space activation');
     assert(!g.key('Enter', { target: g.el('start') }).defaultPrevented);
     assert(!g.key(' ', { ctrlKey: true }).defaultPrevented);
+    assert.equal(g.el('stage').textContent, 'Quiet dunes');
+    assert.equal(g.el('pace').textContent, '1.0×');
+    assert.equal(g.el('shout').attributes['aria-disabled'], 'false', 'Repeated F does not consume the croak');
+    assert.equal(g.frames.size, 1, 'Repeated P does not pause');
     g.advance(100);
     assert.equal(g.stats.sprite.feet, 266, 'Repeated or modified input did not trigger a jump');
     assert(g.key('ArrowUp').defaultPrevented); g.advance(100);
@@ -231,8 +266,11 @@ test('keyboard and pointer controls respect buttons, repeats, modifiers, and red
     g.key('f'); g.advance(20);
     assert.equal(g.el('shout').attributes['aria-disabled'], 'true');
     assert(g.stats.labels.includes('MAKE WAY!'));
+    assert.equal(g.stats.sprite.atlas, 'croak');
     g.motion.matches = true; g.motion.dispatch('change');
     assert(!g.stats.labels.includes('MAKE WAY!'), 'Changing motion preference clears decorative effects');
+    assert.equal(g.stats.sprite.atlas, 'hop', 'Reduced motion suppresses the croak pose animation');
+    assert.equal(g.stats.blasts.length, 1, 'Reduced motion preserves the essential traveling force front');
     g.key('p'); assert.equal(g.frames.size, 0);
     g.key('p'); assert.equal(g.frames.size, 1);
     g.advance(1000);
@@ -249,6 +287,39 @@ test('keyboard and pointer controls respect buttons, repeats, modifiers, and red
     g.open(); await flush(); g.click('start'); g.key('f'); g.advance(100);
     assert(!g.stats.labels.includes('MAKE WAY!'));
     assert.equal(g.el('shout').attributes['aria-disabled'], 'true', 'Reduced motion preserves the croak action');
+  });
+});
+
+test('croak front travels into a hazard, then its launched sprite and points appear', async () => {
+  await withGame({}, async g => {
+    g.open(); await flush(); g.click('start'); g.advance(2020);
+    assert(g.stats.hazards.some(draw => draw.index < 4), 'Ground hazard sprites are rendered');
+    assert(g.stats.hazards.some(draw => draw.index >= 12), 'Fireflies use the generated atlas');
+    g.key('f'); g.advance(20);
+    const first = g.stats.blasts[0].x;
+    g.advance(100);
+    assert(g.stats.blasts[0].x > first, 'The visible force front travels forward');
+    assert.equal(g.stats.sprite.atlas, 'croak');
+    g.advance(500);
+    assert(g.stats.labels.includes('+15'), 'Cleared hazard displays its bonus');
+    assert(g.stats.hazards.some(draw => draw.index < 4 && draw.feet < 266), 'Cleared hazard is launched above the ground');
+    g.advance(1000);
+    assert(!g.stats.labels.includes('+15'), 'Debris and its points expire');
+    assert.equal(g.stats.sprite.atlas, 'hop');
+  });
+});
+
+test('sound stays optional when Web Audio is unavailable', async () => {
+  await withGame({}, async g => {
+    g.open(); await flush();
+    g.click('sound'); await flush();
+    assert.equal(g.el('sound').textContent, 'sound off');
+    assert.equal(g.el('sound').attributes['aria-pressed'], 'false');
+    assert(!g.el('start').disabled);
+    g.click('start'); g.key('f'); g.advance(100);
+    assert.equal(g.frames.size, 1);
+    g.click('pause'); assert.equal(g.frames.size, 0);
+    g.click('close'); assert.equal(g.document.activeElement, g.opener);
   });
 });
 

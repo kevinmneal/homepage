@@ -238,3 +238,40 @@ body.hop-open { overflow: hidden; }
   .hop-pause { padding: .4rem .3rem; font-size: .64rem; }
 }
 @media print { .hop-dialog { display: none; } }
+
+.companion-hint { min-height: 1.5em; margin-top: .2rem; color: var(--accent); font-size: .62rem; }
+.hop-header-actions { display: flex; align-items: center; gap: .5rem; }
+.hop-sound { padding: .3rem .5rem; min-height: 44px; border: 0; background: transparent; color: var(--muted); font-size: .62rem; cursor: pointer; }
+.hop-sound[aria-pressed="true"] { color: var(--accent); }
+.hop-runline { display: flex; justify-content: space-between; gap: 1rem; color: var(--accent); font-size: .62rem; margin: .6rem 0 -.5rem; }
+.hop-runline strong { font-weight: 400; font-variant-numeric: tabular-nums; }
+.hop-close span { margin: 0; }
+.lab-page { max-width: 860px; }
+.lab-intro { padding: 4.8rem 0 2.4rem; max-width: 66ch; }
+.lab-kicker { display: block; color: var(--accent); font-size: .65rem; }
+.lab-intro h1 { margin: .6rem 0 1rem; }
+.lab-intro > p:last-child { font-size: .85rem; line-height: 1.9; }
+.lab-feature { display: grid; grid-template-columns: minmax(0, 1fr) 170px; align-items: center; gap: 1.7rem; padding: 2rem; border: 1px solid var(--line); background: var(--surface); border-radius: 5px; }
+.lab-feature h2, .lab-card h2 { color: var(--heading); font-size: 1.25rem; letter-spacing: -.045em; margin: .5rem 0 .8rem; }
+.lab-feature h2 { font-size: 2rem; font-weight: 700; }
+.lab-feature p, .lab-card p { color: var(--text); font-size: .78rem; line-height: 1.9; }
+.lab-feature:hover, .lab-card:hover { text-decoration: none; border-color: var(--accent); }
+.lab-cta { display: inline-block; margin-top: 1.15rem; font-size: .73rem; color: var(--accent); }
+.lab-toad { display: block; width: 170px; height: 170px; background: url('./assets/game/croak-v2.png') 66.6667% 66.6667% / 400% 400%; transition: transform .2s ease; }
+.lab-feature:hover .lab-toad { transform: rotate(-4deg) translateY(-4px); }
+.lab-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; margin-top: 1.2rem; }
+.lab-card { padding: 1.6rem; border: 1px solid var(--line); border-radius: 5px; }
+.lab-card h2 { font-size: 1rem; line-height: 1.5; }
+.lab-soon { padding: 2.8rem 0 .5rem; max-width: 55ch; }
+.lab-soon > span { color: var(--accent); letter-spacing: .5em; }
+.lab-soon h2 { color: var(--heading); font-size: .85rem; margin: .35rem 0 .5rem; }
+.lab-soon p { font-size: .75rem; color: var(--muted); }
+@media (max-width: 560px) {
+  .lab-intro { padding-top: 3.2rem; }
+  .lab-feature { padding: 1.3rem; grid-template-columns: minmax(0, 1fr); gap: .7rem; }
+  .lab-toad { grid-row: 1; width: 110px; height: 110px; justify-self: end; margin-bottom: -1.5rem; }
+  .lab-feature .lab-kicker { max-width: 16ch; }
+  .lab-grid { grid-template-columns: minmax(0, 1fr); }
+  .hop-header-actions { gap: .1rem; }
+  .hop-sound { font-size: .58rem; padding: .3rem; }
+}

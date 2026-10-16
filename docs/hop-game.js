@@ -1,4 +1,6 @@
-import { WORLD, createRun, jump, shout, stepRun } from './hop-model.js?v=20261015-hop';
+import { WORLD, createRun, jump, shout, stepRun } from './hop-model.js?v=20261016-hop-v2';
+
+import { createHopAudio } from './hop-audio.js?v=20261016-hop-v2';
 
 const BEST_KEY = 'kmn-hop-best-v1';
 let game;
@@ -19,6 +21,10 @@ function createGame() {
   const hopButton = el('jump');
   const shoutButton = el('shout');
   const pauseButton = el('pause');
+  const sound = createHopAudio();
+  const soundButton = el('sound');
+  const stageNames = ['Quiet dunes', 'Tumbleweed country', 'Moth hour'];
+  let lastShout = -10;
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   let phase = 'ready';
   let run = createRun();
@@ -49,6 +55,8 @@ function createGame() {
     try { localStorage.setItem(BEST_KEY, String(best)); } catch (_) { /* Optional. */ }
   }
   function hud() {
+    text('stage', stageNames[run.stage]);
+    text('pace', `${(run.speed / 210).toFixed(1)}×`);
     text('score', run.score);
     text('fireflies', flies);
     text('best', Math.max(best, run.score));
@@ -68,7 +76,7 @@ function createGame() {
     start.textContent = action;
     overlay.hidden = false;
   }
-  function stop() { cancelAnimationFrame(frame); frame = 0; last = 0; }
+  function stop() { cancelAnimationFrame(frame); frame = 0; last = 0; sound.halt(); }
   function pause() {
     if (phase !== 'playing') return;
     phase = 'paused';
@@ -85,6 +93,7 @@ function createGame() {
       run = createRun(Date.now());
       flies = 0;
       effects = [];
+      lastShout = -10;
     }
     phase = 'playing';
     overlay.hidden = true;
@@ -92,6 +101,7 @@ function createGame() {
     canvas.focus({ preventScroll: true });
     announce('Off you go! Space to hop. F to make way. P to pause.');
     stop();
+    sound.resume();
     frame = requestAnimationFrame(tick);
   }
   function finish() {
@@ -111,10 +121,13 @@ function createGame() {
   function consumeEvents() {
     for (const event of run.events.splice(0)) {
       if (event.type === 'collect') flies += 1;
+      if (event.type === 'shout') lastShout = run.time;
+      sound.play(event.type);
+      if (event.type === 'stage') announce(event.stage === 1 ? 'Tumbleweeds rolling in. Hop or blast them!' : 'Moth hour. Stay low to pass beneath them.');
       if (event.type === 'hit') announce(`${run.lives} ${run.lives === 1 ? 'heart' : 'hearts'} left. A little dust, a little dignity.`);
       if (!motion.matches) effects.push({ ...event, born: run.time });
     }
-    effects = effects.filter(effect => run.time - effect.born < .65).slice(-50);
+    effects = effects.filter(effect => run.time - effect.born < (effect.type === 'stage' ? 2.5 : effect.type === 'clear' ? 1.2 : .8)).slice(-50);
   }
   function tick(now) {
     frame = 0;
@@ -147,11 +160,14 @@ function createGame() {
   function draw() {
     const light = document.documentElement.dataset.theme === 'light';
     const palette = light
-      ? { sky: '#fdf6e3', far: '#e5d8b6', near: '#cbbf99', ground: '#eee8d5', line: '#928a69', ink: '#586e75', glow: '#976300' }
-      : { sky: '#002b36', far: '#073642', near: '#16454b', ground: '#07313b', line: '#416266', ink: '#a4b0ad', glow: '#f7cf72' };
+      ? { sky: '#fdf6e3', far: '#e5d8b6', near: '#cbbf99', ground: '#eee8d5', line: '#928a69', ink: '#586e75', glow: '#976300', blast: '#08746e' }
+      : { sky: '#002b36', far: '#073642', near: '#16454b', ground: '#07313b', line: '#416266', ink: '#a4b0ad', glow: '#f7cf72', blast: '#64d5c7' };
     ctx.setTransform(canvas.width / width, 0, 0, canvas.height / WORLD.height, 0, 0);
     ctx.fillStyle = palette.sky;
     ctx.fillRect(0, 0, width, WORLD.height);
+    ctx.save();
+    const shoutAge = run.time - lastShout;
+    if (!motion.matches && shoutAge < .2) ctx.translate(Math.sin(shoutAge * 110) * 2.5 * (1 - shoutAge / .2), Math.cos(shoutAge * 90) * 1.5);
     const drift = motion.matches ? 0 : run.distance * .07;
     // Small desert, large sky. Background motion is decorative and optional.
     ellipse(width - 94, 62, 24, 24, light ? '#d1ac52' : '#d6d0ad');
@@ -182,27 +198,19 @@ function createGame() {
       const x = ((i * 71 - groundDrift) % (width + 80) + width + 80) % (width + 80) - 40;
       ctx.fillRect(x, 281 + (i * 17) % 39, i % 3 ? 5 : 12, 1);
     }
-    for (const rock of run.obstacles) {
-      if (rock.x > width + 50) continue;
-      const { x, height: h, width: w } = rock;
-      ctx.fillStyle = '#c34a70';
-      ctx.beginPath();
-      ctx.moveTo(x, WORLD.ground);
-      ctx.lineTo(x + w * .12, WORLD.ground - h * .63);
-      ctx.lineTo(x + w * .52, WORLD.ground - h);
-      ctx.lineTo(x + w * .9, WORLD.ground - h * .7);
-      ctx.lineTo(x + w, WORLD.ground);
-      ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#ef9b8d'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(x + w * .52, WORLD.ground - h + 3); ctx.lineTo(x + w * .35, WORLD.ground - h * .45); ctx.stroke();
+    for (const obstacle of run.obstacles) {
+      if (obstacle.x > width + 60) continue;
+      drawObstacle(obstacle.kind, obstacle.x + obstacle.width / 2, (obstacle.y ?? WORLD.ground) - obstacle.height / 2,
+        obstacle.width, obstacle.height, motion.matches ? 0 : obstacle.phase, false);
     }
     for (const fly of run.fireflies) {
-      if (fly.x > width + 20) continue;
-      const bob = motion.matches ? 0 : Math.sin(run.time * 5 + fly.id) * 2;
-      ellipse(fly.x - 4, fly.y - 3 + bob, 4, 2.5, light ? '#d4bd86' : '#61745d');
-      ellipse(fly.x + 4, fly.y - 3 + bob, 4, 2.5, light ? '#d4bd86' : '#61745d');
-      ellipse(fly.x, fly.y + bob, 3.5, 4.5, palette.glow);
+      if (fly.x > width + 25) continue;
+      const pose = motion.matches ? 0 : Math.floor(run.time * 12 + fly.id) % 4;
+      const [sx, sy, sw, sh] = assets?.hazards.frames[12 + pose] ?? [0, 0, 1, 1];
+      const scale = assets ? 21 / assets.fireflyHeight : 1;
+      if (assets) ctx.drawImage(assets.hazards.image, sx, sy, sw, sh, fly.x - sw * scale / 2, fly.y + 7 - sh * scale, sw * scale, sh * scale);
     }
+    if (run.blast) drawBlast(run.blast, palette);
     const feet = WORLD.ground - run.player.height;
     ellipse(WORLD.playerX, WORLD.ground + 2, 28 - run.player.height * .1, 4, light ? '#c6bea5' : '#00252f');
     if (assets) {
@@ -210,11 +218,14 @@ function createGame() {
       if (run.player.height > 0) pose = Math.min(12, Math.max(3, 3 + Math.floor((540 - run.player.velocity) / 108)));
       // The jump atlas follows takeoff, extension, descent, and landing.
       else if (phase === 'playing' && !motion.matches) pose = [0, 1, 0, 2][Math.floor(run.time * 6) % 4];
-      const [sx, sy, sw, sh] = assets.frames[pose];
-      const scale = 73 / assets.maxHeight;
+      const roaring = !motion.matches && shoutAge >= 0 && shoutAge < .72;
+      const atlas = roaring ? assets.croak : assets.hop;
+      if (roaring) pose = shoutAge < .08 ? 4 + Math.floor(shoutAge / .02) : shoutAge < .4 ? 8 + Math.floor((shoutAge - .08) / .08) : Math.min(15, 12 + Math.floor((shoutAge - .4) / .08));
+      const [sx, sy, sw, sh] = atlas.frames[pose];
+      const scale = 73 / atlas.maxHeight;
       ctx.save();
       if (run.invulnerable > 0) ctx.globalAlpha = .68;
-      ctx.drawImage(assets.image, sx, sy, sw, sh, WORLD.playerX - sw * scale / 2, feet - sh * scale, sw * scale, sh * scale);
+      ctx.drawImage(atlas.image, sx, sy, sw, sh, WORLD.playerX - sw * scale / 2, feet - sh * scale, sw * scale, sh * scale);
       ctx.restore();
       if (run.invulnerable > 0) {
         ctx.strokeStyle = palette.glow; ctx.lineWidth = 1.5;
@@ -222,18 +233,28 @@ function createGame() {
       }
     }
     for (const effect of effects) {
-      const t = (run.time - effect.born) / .65;
+      const age = run.time - effect.born;
       ctx.save();
-      ctx.globalAlpha = 1 - t;
-      if (effect.type === 'shout') {
-        ctx.strokeStyle = '#42b5a9'; ctx.lineWidth = 4 * (1 - t) + 1;
-        for (let i = 0; i < 3; i += 1) {
-          ctx.beginPath(); ctx.arc(effect.x + 23, effect.y, 24 + t * 190 + i * 22, -.7, .7); ctx.stroke();
-        }
-        ctx.fillStyle = palette.glow; ctx.font = 'bold 17px monospace';
-        ctx.fillText('MAKE WAY!', effect.x + 35, effect.y - 62 - t * 12);
+      if (effect.type === 'clear') {
+        ctx.globalAlpha = Math.max(0, Math.min(1, (1.2 - age) / .4));
+        drawObstacle(effect.kind, effect.x + effect.vx * age, effect.y + effect.vy * age + 240 * age * age,
+          effect.width, effect.height, effect.angle + age * 7, true);
+        ctx.fillStyle = palette.glow; ctx.font = 'bold 13px monospace';
+        ctx.fillText('+15', effect.x, effect.y - 14 - age * 35);
+      } else if (effect.type === 'shout') {
+        ctx.globalAlpha = Math.max(0, 1 - age / .8);
+        ctx.fillStyle = palette.glow; ctx.font = 'bold 23px monospace';
+        ctx.fillText('MAKE WAY!', effect.x + 18, Math.max(30, effect.y - 80) - age * 12);
+      } else if (effect.type === 'stage') {
+        ctx.globalAlpha = Math.min(1, age * 5, (2.5 - age) * 2);
+        ctx.textAlign = 'center'; ctx.fillStyle = palette.glow; ctx.font = 'bold 17px monospace';
+        ctx.fillText(stageNames[effect.stage], width / 2, 42);
+        ctx.font = '11px monospace';
+        ctx.fillText(effect.stage === 1 ? 'watch the rolling brush' : 'stay low for the high flyers', width / 2, 61);
       } else {
-        ctx.fillStyle = effect.type === 'collect' ? palette.glow : effect.type === 'clear' ? '#ef9b8d' : palette.ink;
+        const t = Math.min(1, age / .6);
+        ctx.globalAlpha = 1 - t;
+        ctx.fillStyle = effect.type === 'collect' ? palette.glow : palette.ink;
         for (let i = 0; i < 5; i += 1) {
           const angle = -Math.PI + i * Math.PI / 4;
           ctx.fillRect(effect.x + Math.cos(angle) * t * 42, effect.y + Math.sin(angle) * t * 38 + t * t * 22, 3, 3);
@@ -243,24 +264,71 @@ function createGame() {
     }
     ctx.fillStyle = palette.ink; ctx.font = '10px monospace';
     ctx.fillText('SPEA / NIGHT SHIFT', 18, 321);
+    ctx.restore();
+  }
+  function drawObstacle(kind, x, y, w, h, phase = 0, launched = false) {
+    if (!assets) return;
+    const cycle = ((phase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    let pose = Math.floor(cycle / (Math.PI * 2) * 4);
+    if (kind === 'tumbleweed') pose += 4;
+    if (kind === 'moth') pose = 8 + [0, 1, 2, 3, 2, 1][Math.floor(cycle / (Math.PI * 2) * 6)];
+    const [sx, sy, sw, sh] = assets.hazards.frames[pose];
+    ctx.save(); ctx.translate(x, y);
+    if (launched) ctx.rotate(phase);
+    if (kind === 'moth') {
+      const scale = 49 / assets.mothHeight;
+      ctx.drawImage(assets.hazards.image, sx, sy, sw, sh, -sw * scale / 2, h / 2 - sh * scale, sw * scale, sh * scale);
+    } else {
+      ctx.drawImage(assets.hazards.image, sx, sy, sw, sh, -w / 2 - 3, -h / 2 - 3, w + 6, h + 6);
+    }
+    ctx.restore();
+  }
+  function drawBlast(blast, palette) {
+    ctx.save();
+    const strength = Math.max(.15, 1 - blast.age / .8);
+    const radius = motion.matches ? 80 : 45 + blast.age * 105;
+    ctx.strokeStyle = palette.blast; ctx.lineWidth = motion.matches ? 3 : 4;
+    ctx.globalAlpha = strength;
+    ctx.beginPath();
+    ctx.moveTo(blast.x - 15, blast.y - radius);
+    ctx.bezierCurveTo(blast.x + 38, blast.y - radius * .5, blast.x + 38, blast.y + radius * .5, blast.x - 15, blast.y + radius);
+    ctx.stroke();
+    if (!motion.matches) {
+      ctx.lineWidth = 1.5; ctx.strokeStyle = palette.glow;
+      for (let i = 0; i < 7; i += 1) {
+        const spread = (i - 3) / 3;
+        const tip = blast.x - 12 - Math.abs(spread) * 14;
+        ctx.globalAlpha = strength * .5;
+        ctx.beginPath(); ctx.moveTo(Math.max(blast.originX + 28, tip - 80 - i * 7), blast.y + spread * radius * .7);
+        ctx.lineTo(tip, blast.y + spread * radius * .85); ctx.stroke();
+      }
+      ctx.globalAlpha = strength * .06;
+      ctx.fillStyle = '#b5fff2'; ctx.beginPath(); ctx.moveTo(blast.originX + 20, blast.y);
+      ctx.lineTo(blast.x, blast.y - radius); ctx.lineTo(blast.x + 25, blast.y); ctx.lineTo(blast.x, blast.y + radius); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
   }
   function loadAssets() {
     if (assets) return Promise.resolve(assets);
     if (!assetPromise) {
-      const image = new Image();
-      const loaded = new Promise((resolve, reject) => {
+      const imageAt = path => new Promise((resolve, reject) => {
+        const image = new Image();
         image.onload = () => resolve(image);
-        image.onerror = () => reject(new Error('Toad image unavailable'));
-        image.src = new URL('./assets/companion/hop.png', import.meta.url).href;
+        image.onerror = () => reject(new Error('Game artwork unavailable'));
+        image.src = new URL(path, import.meta.url).href;
+      });
+      const metadataAt = path => fetch(new URL(path, import.meta.url)).then(response => {
+        if (!response.ok) throw new Error('Game frames unavailable');
+        return response.json();
       });
       assetPromise = Promise.all([
-        loaded,
-        fetch(new URL('./assets/companion/frames.json', import.meta.url)).then(response => {
-          if (!response.ok) throw new Error('Toad frames unavailable');
-          return response.json();
-        }),
-      ]).then(([image, metadata]) => {
-        assets = { image, frames: metadata.hop.frames, maxHeight: Math.max(...metadata.hop.frames.map(f => f[3])) };
+        imageAt('./assets/companion/hop.png'), imageAt('./assets/game/croak-v2.png'), imageAt('./assets/game/hazards-v2.png'),
+        metadataAt('./assets/companion/frames.json'), metadataAt('./assets/game/frames-v2.json'),
+      ]).then(([hop, croak, hazards, original, generated]) => {
+        const atlas = (image, data) => ({ image, frames: data.frames, maxHeight: Math.max(...data.frames.map(f => f[3])) });
+        assets = { hop: atlas(hop, original.hop), croak: atlas(croak, generated.croak), hazards: atlas(hazards, generated.hazards),
+          mothHeight: Math.max(...generated.hazards.frames.slice(8, 12).map(f => f[3])),
+          fireflyHeight: Math.max(...generated.hazards.frames.slice(12, 16).map(f => f[3])) };
         return assets;
       }).catch(error => { assetPromise = null; throw error; });
     }
@@ -270,7 +338,7 @@ function createGame() {
     const ticket = ++generation;
     phase = 'loading';
     start.disabled = true;
-    card('A very small adventure.', 'Hop over rocks. Catch fireflies. Make a little noise.', 'Waking up…');
+    card('A very small adventure.', 'Hop rocks and rolling tumbleweeds. Run under moths. Send them all flying.', 'Waking up…');
     hud();
     resize();
     try {
@@ -290,6 +358,15 @@ function createGame() {
       announce('Artwork unavailable. Choose Try again to reload it.');
     }
   }
+  soundButton.addEventListener('click', async () => {
+    soundButton.disabled = true;
+    try {
+      const enabled = await sound.toggle();
+      soundButton.textContent = enabled ? 'sound on' : 'sound off';
+      soundButton.setAttribute('aria-pressed', String(enabled));
+      if (enabled && dialog.open) sound.play('collect');
+    } finally { soundButton.disabled = false; }
+  });
   start.addEventListener('click', () => phase === 'error' ? prepare() : begin());
   hopButton.addEventListener('click', () => action('jump'));
   shoutButton.addEventListener('click', () => action('shout'));
@@ -334,8 +411,9 @@ function createGame() {
   return {
     open() {
       if (dialog.open) return;
-      returnFocus = document.activeElement;
+      returnFocus = document.activeElement === document.body ? document.getElementById('companion-secret') : document.activeElement;
       run = createRun();
+      lastShout = -10;
       flies = 0;
       effects = [];
       dialog.showModal();

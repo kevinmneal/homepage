@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261015-hop';
+import { createCompanion } from './companion.js?v=20261016-hop-v2';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');
@@ -60,26 +60,51 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) compa
 window.addEventListener('pagehide', () => companion?.pause());
 // Native details keeps text and figures available without JavaScript.
 
-// Three quick pointer taps reveal the game; keyboard/assistive activation is direct.
+// Curiosity rewards a hover or tap; three taps uncover the field trip.
 const secret = document.getElementById('companion-secret');
+const hint = document.getElementById('companion-hint');
 let tapCount = 0;
 let lastTap = 0;
+let hintTimer;
 let openingGame = false;
-secret?.addEventListener('click', async event => {
-  const now = performance.now();
-  tapCount = now - lastTap < 650 ? tapCount + 1 : 1;
-  lastTap = now;
-  if (event.detail !== 0 && tapCount < 3) return;
-  tapCount = 0;
+function tease(message, reaction) {
+  companion?.react(reaction);
+  if (!hint) return;
+  clearTimeout(hintTimer);
+  hint.textContent = message;
+  hintTimer = setTimeout(() => { hint.textContent = ''; tapCount = 0; }, 1800);
+}
+secret?.addEventListener('pointerenter', event => {
+  if (event.pointerType === 'mouse' && tapCount === 0) tease('…oh, hello.', 'curious');
+});
+async function openFieldTrip() {
   if (openingGame) return;
   openingGame = true;
+  clearTimeout(hintTimer);
+  if (hint) hint.textContent = '';
   companion?.pause();
   try {
-    const { openHopGame } = await import('./hop-game.js?v=20261015-hop');
+    const { openHopGame } = await import('./hop-game.js?v=20261016-hop-v2');
     openHopGame();
   } catch (_) {
     companionLabel.textContent = 'The field trip didn’t load. Try again.';
   } finally {
     openingGame = false;
   }
+}
+secret?.addEventListener('click', event => {
+  const now = performance.now();
+  tapCount = now - lastTap < 1800 ? tapCount + 1 : 1;
+  lastTap = now;
+  if (event.detail !== 0 && tapCount < 3) {
+    tease(tapCount === 1 ? 'mrrp?' : '…again?', tapCount === 1 ? 'happy' : 'croak');
+    return;
+  }
+  tapCount = 0;
+  openFieldTrip();
+});
+// The lab also offers a direct, shareable entrance; play still requires Start.
+if (window.location?.hash === '#make-hop') openFieldTrip();
+window.addEventListener('hashchange', () => {
+  if (window.location?.hash === '#make-hop') openFieldTrip();
 });

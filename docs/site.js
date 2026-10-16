@@ -76,7 +76,7 @@ async function openFieldTrip() {
   tapCount = 0;
   companion?.pause();
   try {
-    const { openHopGame } = await import('./hop-game.js?v=20261016-hop-v2');
+    const { openHopGame } = await import('./hop-game.js?v=20261016-gait-v3');
     openHopGame();
   } catch (_) {
     companionLabel.textContent = 'The field trip didn’t load. Try again.';

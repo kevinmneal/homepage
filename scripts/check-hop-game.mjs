@@ -5,8 +5,8 @@ import test from 'node:test';
 // Exercise the real game/controller and model with a small DOM/canvas adapter.
 // Browser layout, native dialog behavior, and rendered pixels need browser QA.
 const metadata = JSON.parse(fs.readFileSync(new URL('../docs/assets/companion/frames.json', import.meta.url), 'utf8'));
-const generated = JSON.parse(fs.readFileSync(new URL('../docs/assets/game/frames-v2.json', import.meta.url), 'utf8'));
-const atlasMetadata = { hop: metadata.hop, croak: generated.croak, hazards: generated.hazards };
+const generated = JSON.parse(fs.readFileSync(new URL('../docs/assets/game/frames-v3.json', import.meta.url), 'utf8'));
+const atlasMetadata = { hop: metadata.hop, croak: generated.croak, hazards: generated.hazards, walk: generated.walk };
 const html = fs.readFileSync(new URL('../docs/index.html', import.meta.url), 'utf8');
 let fixtureNumber = 0;
 const flush = async () => { for (let i = 0; i < 16; i++) await Promise.resolve(); };
@@ -96,7 +96,8 @@ async function withGame(options, check) {
           assert(index >= 0, 'Sprite rectangle matches its own atlas metadata');
           assert(dw > 0 && dh > 0);
           assert(state.globalAlpha >= 0 && state.globalAlpha <= 1, 'Sprite alpha is valid');
-          const draw = { atlas: image.atlas, index, feet: state.y + dy + dh, x: state.x + dx, source: [sx, sy, sw, sh] };
+          const draw = { atlas: image.atlas, index, feet: state.y + dy + dh, x: state.x + dx, width: dw, height: dh,
+            scale: dw / sw, scaleY: dh / sh, source: [sx, sy, sw, sh] };
           if (image.atlas === 'hazards') stats.hazards.push(draw);
           else stats.sprite = draw;
         }
@@ -121,16 +122,16 @@ async function withGame(options, check) {
   install('Image', class {
     set src(value) {
       const name = new URL(value).pathname.split('/').at(-1);
-      this.atlas = { 'hop.png': 'hop', 'croak-v2.png': 'croak', 'hazards-v2.png': 'hazards' }[name];
+      this.atlas = { 'hop.png': 'hop', 'croak-v2.png': 'croak', 'hazards-v2.png': 'hazards', 'walk-v3.png': 'walk' }[name];
       assert(this.atlas, `Known image asset: ${name}`);
       const attempt = ++imageCount;
-      const fail = (options.failImageOnce && attempt === 1) || (options.failHazardsOnce && attempt === 3);
+      const fail = (options.failImageOnce && attempt === 1) || (options.failHazardsOnce && attempt === 3) || (options.failWalkOnce && attempt === 4);
       queueMicrotask(() => fail ? this.onerror() : this.onload());
     }
   });
   install('fetch', async url => {
     const isOriginal = String(url).endsWith('/assets/companion/frames.json');
-    assert(isOriginal || String(url).endsWith('/assets/game/frames-v2.json'));
+    assert(isOriginal || String(url).endsWith('/assets/game/frames-v3.json'));
     const attempt = ++fetchCount;
     if (options.delayed) await new Promise(resolve => pendingLoads.push(resolve));
     return { ok: !((options.failMetadataOnce && attempt === 1) || (options.failGeneratedMetadataOnce && attempt === 2)),
@@ -169,7 +170,7 @@ test('open, pause, automatic suspension, close, and reopen preserve the expected
     assert(g.el('start').disabled);
     await flush();
     assert.equal(g.fetchCount(), 2);
-    assert.equal(g.imageCount(), 3);
+    assert.equal(g.imageCount(), 4);
     assert.equal(g.document.activeElement, g.el('start'));
     assert.equal(g.frames.size, 0, 'Ready screen does not run physics');
     g.click('start'); g.advance(1000);
@@ -205,7 +206,7 @@ test('open, pause, automatic suspension, close, and reopen preserve the expected
     assert(Number(g.saved.get('kmn-hop-best-v1')) > 0);
     g.open(); await flush();
     assert.equal(g.fetchCount(), 2, 'Reopen reuses both loaded metadata files');
-    assert.equal(g.imageCount(), 3, 'Reopen reuses all three images');
+    assert.equal(g.imageCount(), 4, 'Reopen reuses all four images');
     assert.equal(g.el('score').textContent, '0');
     assert.equal(g.frames.size, 0);
   });
@@ -232,7 +233,7 @@ test('closing during load cannot steal focus, and reopening uses only the curren
 });
 
 test('artwork failures can be retried without starting duplicate loops', async () => {
-  for (const failure of ['failMetadataOnce', 'failGeneratedMetadataOnce', 'failImageOnce', 'failHazardsOnce']) {
+  for (const failure of ['failMetadataOnce', 'failGeneratedMetadataOnce', 'failImageOnce', 'failHazardsOnce', 'failWalkOnce']) {
     await withGame({ [failure]: true }, async g => {
       g.open(); await flush();
       assert.equal(g.el('start').textContent, 'Try again');
@@ -240,7 +241,7 @@ test('artwork failures can be retried without starting duplicate loops', async (
       assert.equal(g.frames.size, 0);
       g.click('start'); await flush();
       assert.equal(g.fetchCount(), 4);
-      assert.equal(g.imageCount(), 6);
+      assert.equal(g.imageCount(), 8);
       assert.equal(g.el('start').textContent, 'Let’s hop');
       g.click('start'); g.advance(100);
       assert.equal(g.frames.size, 1);
@@ -287,6 +288,53 @@ test('keyboard and pointer controls respect buttons, repeats, modifiers, and red
     g.open(); await flush(); g.click('start'); g.key('f'); g.advance(100);
     assert(!g.stats.labels.includes('MAKE WAY!'));
     assert.equal(g.el('shout').attributes['aria-disabled'], 'true', 'Reduced motion preserves the croak action');
+    assert.equal(g.stats.sprite.atlas, 'hop');
+    assert.equal(g.stats.sprite.index, 0, 'Initial reduced motion keeps the grounded character still');
+  });
+});
+
+test('walking uses all 16 poses at a fixed scale and feet baseline, freezes on pause, and yields to jump/croak', async () => {
+  await withGame({}, async g => {
+    g.open(); await flush();
+    assert.equal(g.stats.sprite.atlas, 'hop', 'Ready screen keeps the original resting character');
+    assert.equal(g.stats.sprite.index, 0);
+    const restingHeight = g.stats.sprite.height;
+    g.click('start'); g.advance(20);
+    assert.equal(g.stats.sprite.atlas, 'walk');
+    assert.equal(g.stats.sprite.index, 0);
+    assert(Math.abs(g.stats.sprite.height - restingHeight) < 1e-9, 'Walking frame zero matches the resting character height');
+    const scale = g.stats.sprite.scale, poses = new Set([0]);
+    for (let elapsed = 0; elapsed < 1500; elapsed += 20) {
+      g.advance(20);
+      const sprite = g.stats.sprite;
+      assert.equal(sprite.atlas, 'walk');
+      poses.add(sprite.index);
+      assert(Math.abs(sprite.scale - scale) < 1e-12 && Math.abs(sprite.scaleY - scale) < 1e-12,
+        'Walking uses one atlas scale instead of resizing individual poses');
+      assert(Math.abs(sprite.feet - 266) < 1e-9, 'Every grounded pose keeps the same feet baseline');
+      assert(Math.abs(sprite.x + sprite.width / 2 - 135) < 1e-9, 'Walking stays centered on the player');
+    }
+    assert.deepEqual([...poses].sort((a, b) => a - b), Array.from({ length: 16 }, (_, i) => i));
+    const paused = structuredClone(g.stats.sprite);
+    g.click('pause');
+    assert.deepEqual(g.stats.sprite, paused, 'Pause retains the current walk pose');
+    g.advance(5000); assert.deepEqual(g.stats.sprite, paused);
+    g.click('start'); g.advance(20);
+    assert.deepEqual(g.stats.sprite, paused, 'Resume begins at the same distance and pose');
+    g.advance(100); assert.notEqual(g.stats.sprite.index, paused.index);
+    g.key(' '); g.advance(80);
+    assert.equal(g.stats.sprite.atlas, 'hop', 'Airborne movement uses the original jump atlas');
+    assert(g.stats.sprite.feet < 266);
+    g.key('f'); g.advance(20);
+    assert.equal(g.stats.sprite.atlas, 'croak', 'Croak retains priority during a jump');
+    g.motion.matches = true; g.motion.dispatch('change');
+    assert.equal(g.stats.sprite.atlas, 'hop', 'Reduced motion retains essential jump poses');
+    assert(g.stats.sprite.feet < 266);
+    g.advance(900);
+    assert.equal(g.stats.sprite.atlas, 'hop');
+    assert.equal(g.stats.sprite.index, 0, 'Reduced motion suppresses the grounded walk cycle');
+    g.motion.matches = false; g.motion.dispatch('change');
+    assert.equal(g.stats.sprite.atlas, 'walk', 'Disabling reduced motion restores the current stride');
   });
 });
 
@@ -305,7 +353,7 @@ test('croak front travels into a hazard, then its launched sprite and points app
     assert(g.stats.hazards.some(draw => draw.index < 4 && draw.feet < 266), 'Cleared hazard is launched above the ground');
     g.advance(1000);
     assert(!g.stats.labels.includes('+15'), 'Debris and its points expire');
-    assert.equal(g.stats.sprite.atlas, 'hop');
+    assert.equal(g.stats.sprite.atlas, 'walk');
   });
 });
 
@@ -331,6 +379,8 @@ test('a completed run saves its best, stops, and can restart with three hearts',
     assert.equal(g.el('start').textContent, 'One more hop');
     assert.equal(g.document.activeElement, g.el('start'));
     assert(g.el('jump').disabled && g.el('shout').disabled);
+    assert.equal(g.stats.sprite.atlas, 'hop', 'Game over returns to the old idle atlas');
+    assert.equal(g.stats.sprite.index, 0);
     const best = Number(g.saved.get('kmn-hop-best-v1'));
     assert(best > 0);
     assert.equal(best, Number(g.el('score').textContent));

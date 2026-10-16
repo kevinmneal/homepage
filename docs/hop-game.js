@@ -110,6 +110,7 @@ function createGame() {
     saveBest();
     card('A noble little tumble.', `${Math.floor(run.distance / 10)} m · ${flies} fireflies · ${run.score} points. The desert requests an encore.`, 'One more hop');
     hud();
+    draw();
     announce(`Run finished. ${run.score} points and ${flies} fireflies. Choose One more hop to try again.`);
     start.focus({ preventScroll: true });
   }
@@ -214,15 +215,22 @@ function createGame() {
     const feet = WORLD.ground - run.player.height;
     ellipse(WORLD.playerX, WORLD.ground + 2, 28 - run.player.height * .1, 4, light ? '#c6bea5' : '#00252f');
     if (assets) {
-      let pose = 0;
-      if (run.player.height > 0) pose = Math.min(12, Math.max(3, 3 + Math.floor((540 - run.player.velocity) / 108)));
+      const active = phase === 'playing' || phase === 'paused';
+      let pose = 0, atlas = assets.hop;
       // The jump atlas follows takeoff, extension, descent, and landing.
-      else if (phase === 'playing' && !motion.matches) pose = [0, 1, 0, 2][Math.floor(run.time * 6) % 4];
-      const roaring = !motion.matches && shoutAge >= 0 && shoutAge < .72;
-      const atlas = roaring ? assets.croak : assets.hop;
-      if (roaring) pose = shoutAge < .08 ? 4 + Math.floor(shoutAge / .02) : shoutAge < .4 ? 8 + Math.floor((shoutAge - .08) / .08) : Math.min(15, 12 + Math.floor((shoutAge - .4) / .08));
+      if (active && run.player.height > 0) pose = Math.min(12, Math.max(3, 3 + Math.floor((540 - run.player.velocity) / 108)));
+      else if (active && !motion.matches) {
+        // Real leg poses follow distance, so pausing holds exactly this stride.
+        atlas = assets.walk;
+        pose = Math.floor(run.distance / 14) % 16;
+      }
+      const roaring = active && !motion.matches && shoutAge >= 0 && shoutAge < .72;
+      if (roaring) {
+        atlas = assets.croak;
+        pose = shoutAge < .08 ? 4 + Math.floor(shoutAge / .02) : shoutAge < .4 ? 8 + Math.floor((shoutAge - .08) / .08) : Math.min(15, 12 + Math.floor((shoutAge - .4) / .08));
+      }
       const [sx, sy, sw, sh] = atlas.frames[pose];
-      const scale = 73 / atlas.maxHeight;
+      const scale = atlas === assets.walk ? assets.walkScale : 73 / atlas.maxHeight;
       ctx.save();
       if (run.invulnerable > 0) ctx.globalAlpha = .68;
       ctx.drawImage(atlas.image, sx, sy, sw, sh, WORLD.playerX - sw * scale / 2, feet - sh * scale, sw * scale, sh * scale);
@@ -323,10 +331,13 @@ function createGame() {
       });
       assetPromise = Promise.all([
         imageAt('./assets/companion/hop.png'), imageAt('./assets/game/croak-v2.png'), imageAt('./assets/game/hazards-v2.png'),
-        metadataAt('./assets/companion/frames.json'), metadataAt('./assets/game/frames-v2.json'),
-      ]).then(([hop, croak, hazards, original, generated]) => {
+        imageAt('./assets/game/walk-v3.png'),
+        metadataAt('./assets/companion/frames.json'), metadataAt('./assets/game/frames-v3.json'),
+      ]).then(([hop, croak, hazards, walk, original, generated]) => {
         const atlas = (image, data) => ({ image, frames: data.frames, maxHeight: Math.max(...data.frames.map(f => f[3])) });
-        assets = { hop: atlas(hop, original.hop), croak: atlas(croak, generated.croak), hazards: atlas(hazards, generated.hazards),
+        const hopAtlas = atlas(hop, original.hop), walkAtlas = atlas(walk, generated.walk);
+        assets = { hop: hopAtlas, walk: walkAtlas, croak: atlas(croak, generated.croak), hazards: atlas(hazards, generated.hazards),
+          walkScale: hopAtlas.frames[0][3] * 73 / hopAtlas.maxHeight / walkAtlas.frames[0][3],
           mothHeight: Math.max(...generated.hazards.frames.slice(8, 12).map(f => f[3])),
           fireflyHeight: Math.max(...generated.hazards.frames.slice(12, 16).map(f => f[3])) };
         return assets;

@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261015-touches';
+import { createCompanion } from './companion.js?v=20261015-hop';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');
@@ -59,3 +59,27 @@ pauseButton.addEventListener('click', () => companion?.pause());
 document.addEventListener('visibilitychange', () => { if (document.hidden) companion?.pause(); });
 window.addEventListener('pagehide', () => companion?.pause());
 // Native details keeps text and figures available without JavaScript.
+
+// Three quick pointer taps reveal the game; keyboard/assistive activation is direct.
+const secret = document.getElementById('companion-secret');
+let tapCount = 0;
+let lastTap = 0;
+let openingGame = false;
+secret?.addEventListener('click', async event => {
+  const now = performance.now();
+  tapCount = now - lastTap < 650 ? tapCount + 1 : 1;
+  lastTap = now;
+  if (event.detail !== 0 && tapCount < 3) return;
+  tapCount = 0;
+  if (openingGame) return;
+  openingGame = true;
+  companion?.pause();
+  try {
+    const { openHopGame } = await import('./hop-game.js?v=20261015-hop');
+    openHopGame();
+  } catch (_) {
+    companionLabel.textContent = 'The field trip didn’t load. Try again.';
+  } finally {
+    openingGame = false;
+  }
+});

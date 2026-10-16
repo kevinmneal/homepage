@@ -186,3 +186,55 @@ footer nav { display: flex; flex-wrap: wrap; gap: .75rem 1.6rem; }
   .intro { padding: 2rem 0; }
   .project { break-inside: avoid; }
 }
+
+/* A small field trip, tucked behind the companion. */
+.companion-secret { display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.companion-secret:focus-visible { outline-offset: -2px; }
+body.hop-open { overflow: hidden; }
+.hop-dialog { width: min(940px, calc(100% - 2rem)); max-height: calc(100dvh - 2rem); padding: 1.5rem; border: 1px solid var(--accent); border-radius: 8px; background: var(--bg); color: var(--text); box-shadow: 0 24px 100px #0008; overflow: auto; }
+.hop-dialog::backdrop { background: #001820d9; backdrop-filter: blur(5px); }
+.hop-header { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+.hop-eyebrow { color: var(--accent); font-size: .62rem; }
+.hop-header h2 { color: var(--heading); font-size: 1.75rem; font-weight: 700; letter-spacing: -.07em; line-height: 1.4; }
+.hop-close, .hop-pause { border: 0; background: none; cursor: pointer; font-size: .7rem; min-height: 44px; padding: .4rem .6rem; }
+.hop-close:hover, .hop-pause:hover { color: var(--heading); }
+.hop-close span { font-size: 1.2rem; margin-left: .5rem; }
+.hop-scoreboard { display: flex; align-items: center; gap: 1.7rem; margin: 1rem 0; font-size: .65rem; color: var(--muted); }
+.hop-scoreboard strong { color: var(--heading); font-size: .85rem; font-weight: 400; margin-left: .35rem; font-variant-numeric: tabular-nums; }
+.hop-hearts { margin-left: auto; color: #db6d86; font-size: 1rem; white-space: nowrap; }
+.hop-arena { position: relative; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+#hop-canvas { display: block; width: 100%; aspect-ratio: 900 / 340; touch-action: manipulation; outline: none; }
+#hop-canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+.hop-overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 1rem; background: color-mix(in srgb, var(--bg) 35%, transparent); }
+.hop-card { max-width: 420px; padding: 1.3rem 1.7rem; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; text-align: center; box-shadow: 0 8px 25px #0002; }
+.hop-card h3 { color: var(--heading); margin: 0; font-weight: 400; font-size: 1rem; line-height: 1.5; }
+.hop-card p { font-size: .71rem; line-height: 1.7; margin: .65rem 0 1rem; }
+.hop-start { padding: .6rem 1.25rem; border: 1px solid var(--accent); border-radius: 3px; color: var(--bg); background: var(--accent); cursor: pointer; font-size: .78rem; min-height: 44px; }
+.hop-controls { display: flex; align-items: stretch; gap: .75rem; margin-top: 1rem; }
+.hop-action { padding: .5rem 1rem; min-height: 48px; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); cursor: pointer; font-size: .78rem; text-align: left; }
+.hop-action:hover:not(:disabled) { border-color: var(--accent); color: var(--heading); }
+.hop-dialog kbd { font: inherit; font-size: .58rem; margin-left: .6rem; color: var(--muted); }
+.hop-shout { min-width: 156px; }
+.hop-shout[aria-disabled="true"] { color: var(--muted); }
+.hop-charge { display: block; height: 3px; margin-top: .3rem; background: var(--line); overflow: hidden; }
+.hop-charge > span { display: block; height: 100%; width: 100%; background: var(--accent); }
+.hop-pause { margin-left: auto; }
+.hop-instructions { margin-top: 1rem; font-size: .67rem; line-height: 1.8; max-width: 80ch; }
+.hop-status { font-size: .62rem; color: var(--muted); min-height: 1.8em; margin-top: .5rem; }
+.hop-dialog button:disabled { opacity: .55; cursor: default; }
+@media (max-width: 560px) {
+  .hop-dialog { width: calc(100% - 1rem); max-height: calc(100dvh - 1rem); padding: .85rem; }
+  .hop-header h2 { font-size: 1.5rem; }
+  .hop-scoreboard { gap: .8rem; font-size: .58rem; }
+  .hop-scoreboard strong { display: block; margin-left: 0; }
+  #hop-canvas { aspect-ratio: 510 / 340; }
+  .hop-card { padding: 1rem; }
+  .hop-card h3 { font-size: .88rem; }
+  .hop-card p { font-size: .64rem; }
+  .hop-controls { gap: .45rem; }
+  .hop-action { padding: .5rem .7rem; font-size: .7rem; }
+  .hop-dialog kbd { display: none; }
+  .hop-shout { min-width: 112px; }
+  .hop-pause { padding: .4rem .3rem; font-size: .64rem; }
+}
+@media print { .hop-dialog { display: none; } }

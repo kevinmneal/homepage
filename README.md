@@ -10,6 +10,8 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/styles.css`: responsive layout and Solarized dark/light themes.
 - `docs/site.js`: theme switch, expandable projects, and animation controls.
 - `docs/companion.js`: the persistent spadefoot's contextual animations.
+- `docs/hop-game.js`: the hidden MAKE HOP! game, its canvas renderer, controls, and lifecycle.
+- `docs/hop-model.js`: deterministic game physics, spawning, collision, and scoring.
 - `docs/assets/companion/`: three sixteen-pose sprite atlases and frame metadata.
 - `docs/assets/spadefoot.png`: original owner-supplied character reference.
 - `docs/assets/spea-intermontana-map.svg`: compact map drawn from saved environmental-model predictions.
@@ -21,6 +23,8 @@ Every page load starts in dark mode. The theme switch displays the current mode 
 The featured work is Fortegra, spadefoot biogeography, and six-triangle packing; watermarking is a secondary experiment link. Publications distinguish peer-reviewed articles from working manuscripts and preprints. Professional descriptions are supplied by the site owner; do not infer private implementation details, metrics, or outcomes.
 
 Typing uses short bursts and rests with one quick blink. Typing and map poses blend on a separate canvas to keep their opacity stable; the hopping sequence uses its original sprite animation.
+
+Triple-click or triple-tap the companion to open **MAKE HOP!**, a small desert runner. Keyboard and assistive activation of the companion button opens it directly. Space/Up or the field/Hop button jumps; F or Make way! spends a rechargeable croak to clear nearby rocks; P pauses. Three hits end a run. Fireflies add points and recharge the croak. Best score is stored only in this browser when storage is available; there is no leaderboard or network service. The game loads on demand, reuses the existing toad artwork, pauses when the tab loses visibility/focus, and stops on close. Reduced motion removes decorative movement and particle effects; gameplay begins only after an explicit start.
 
 The research thumbnail depicts modeled recording density for *Spea intermontana*, using embedded samples from Seaborn’s Rocket palette. Its source hashes, model context, and display aggregation are recorded in [`scripts/spea-intermontana-map.provenance.json`](scripts/spea-intermontana-map.provenance.json). [`scripts/build-sdm-thumbnail.py`](scripts/build-sdm-thumbnail.py) regenerates it from the existing research archive; no model is fitted. Its scientific Python dependencies are needed only for regeneration, not for serving the homepage.
 
@@ -38,7 +42,7 @@ Open http://127.0.0.1:8765/. Serve over HTTP for the JavaScript modules and fram
 
 ## Verification
 
-Run `node scripts/check-companion.mjs` for animation lifecycle checks, including asset retry, rapid selection, reduced motion, and unavailable canvas fallback. Also run `node --check docs/site.js`, `node --check docs/companion.js`, and `git diff --check`. Use a browser to inspect both themes and desktop/mobile layouts; the mocked canvas checks do not verify appearance.
+Run `node scripts/check-hop-model.mjs` for deterministic physics, input, collision, collection, and spawn-bound checks. Run `node scripts/check-hop-game.mjs` for mocked game lifecycle and controls. Run `node scripts/check-companion.mjs` for animation lifecycle checks, including asset retry, rapid selection, reduced motion, and unavailable canvas fallback. Also run `node --check docs/site.js`, `node --check docs/companion.js`, `node --check docs/hop-game.js`, `node --check docs/hop-model.js`, and `git diff --check`. Use a browser to inspect both themes and desktop/mobile layouts; the mocked canvas checks do not verify appearance.
 
 ## Publishing
 

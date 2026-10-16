@@ -58,27 +58,44 @@ function ground(ctx, p) {
   ctx.lineTo(300, 281);
   ctx.stroke();
 }
-const TYPING = [0,1,2,3,4,5,6,7,8,12,13,14,15,0,1,2,3,4,5,6,7,8,12,13,14,15,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-function typingScene(ctx, t, p, atlases, finished) {
-  ground(ctx, p);
-  const appearance = smooth(phase(t, 0, 0.32));
-  const frame = finished ? 15 : TYPING[Math.floor(Math.max(0, t - 0.3) * 12) % TYPING.length];
-  sprite(ctx, atlases.hop, 0, 200, 278, 0.72, 0, 1 - appearance);
-  sprite(ctx, atlases.typing, frame, 200, 278, 0.72, 0, appearance);
-}
-function mapFrame(t) {
-  if (t < 1.3) return Math.min(5, Math.floor(t / 1.3 * 6));
-  if (t < 5.7) {
-    const scan = [6,7,8,9,10,11,10,9,8,7,6,5];
-    return scan[Math.floor((t - 1.3) * 9) % scan.length];
+// Two short typing bursts, a single quick blink, and time to rest.
+// Durations are seconds. The last pose holds until the scene finishes.
+const TYPING = [
+  [0,.65],[1,.24],[2,.24],[3,.24],[4,.24],[5,.24],[6,.24],[7,.24],[8,.65],
+  [9,.06],[10,.07],[11,.09],[12,.5],
+  [13,.26],[14,.26],[15,.26],[12,.26],[13,.26],[14,.26],[15,.26],
+  [12,.26],[13,.26],[14,.26],[15,Infinity],
+];
+const MAP = [
+  [0,.35],[1,.25],[2,.25],[3,.25],[4,.25],[5,.3],
+  [6,.3],[7,.3],[8,.35],[9,.35],[10,.35],[11,.55],
+  [10,.3],[9,.3],[8,.3],[7,.3],[6,.3],[5,.35],
+  [12,.26],[13,.26],[14,.26],[15,Infinity],
+];
+function timedPose(sequence, time, blink = false) {
+  for (let i = 0; i < sequence.length; i++) {
+    const [frame, duration] = sequence[i];
+    if (time < duration) {
+      const next = sequence[i + 1]?.[0] ?? frame;
+      const eyeChange = blink && ([9,10,11].includes(frame) || [9,10,11].includes(next));
+      const blend = eyeChange || !Number.isFinite(duration) ? 0 : smooth(phase(time, duration - .08, duration));
+      return { frame, next, blend };
+    }
+    time -= duration;
   }
-  return Math.min(15, 12 + Math.floor((t - 5.7) * 5));
 }
-function mapScene(ctx, t, p, atlases) {
+function typingScene(ctx, t, p, atlases, finished, drawPose) {
   ground(ctx, p);
-  const appearance = smooth(phase(t, 0, 0.32));
+  const appearance = smooth(phase(t, 0, 0.55));
+  const pose = finished ? { frame: 15, blend: 0 } : timedPose(TYPING, t, true);
   sprite(ctx, atlases.hop, 0, 200, 278, 0.72, 0, 1 - appearance);
-  sprite(ctx, atlases.map, mapFrame(t), 200, 278, 0.72, 0, appearance);
+  drawPose(atlases.typing, pose, 200, 278, 0.72, appearance);
+}
+function mapScene(ctx, t, p, atlases, finished, drawPose) {
+  ground(ctx, p);
+  const appearance = smooth(phase(t, 0, 0.55));
+  sprite(ctx, atlases.hop, 0, 200, 278, 0.72, 0, 1 - appearance);
+  drawPose(atlases.map, timedPose(MAP, t), 200, 278, 0.72, appearance);
 }
 const SLOTS = [[200,137],[155,214],[245,214],[116,285],[200,285],[284,285]];
 function packingScene(ctx, t, p, atlases, finished) {
@@ -106,8 +123,8 @@ function packingScene(ctx, t, p, atlases, finished) {
   }
 }
 const WORDS = ['the', 'model', 'chooses', 'a', 'token', 'next'];
-function watermarkScene(ctx, t, p, atlases, finished) {
-  typingScene(ctx, t, p, atlases, finished);
+function watermarkScene(ctx, t, p, atlases, finished, drawPose) {
+  typingScene(ctx, t, p, atlases, finished, drawPose);
   const count = phase(t, 0.8, 5.7) * WORDS.length;
   for (let i = 0; i < WORDS.length; i++) {
     const appear = smooth(clamp(count - i));
@@ -133,6 +150,24 @@ const REQUIRED = { idle: ['hop'], insurance: ['hop','typing'], ecology: ['hop','
 export function createCompanion(canvas) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas unavailable');
+  const poseLayer = document.createElement('canvas');
+  poseLayer.width = WIDTH; poseLayer.height = HEIGHT;
+  const poseCtx = poseLayer.getContext('2d');
+  function drawPose(atlas, pose, x, baseline, scale, opacity) {
+    if (!pose.blend || !poseCtx) {
+      sprite(ctx, atlas, pose.frame, x, baseline, scale, 0, opacity);
+      return;
+    }
+    // Blend on transparency so common pixels stay opaque. Compositing both
+    // weighted poses directly onto the scene would create a brightness dip.
+    poseCtx.clearRect(0, 0, WIDTH, HEIGHT);
+    sprite(poseCtx, atlas, pose.frame, x, baseline, scale, 0, 1 - pose.blend);
+    poseCtx.globalCompositeOperation = 'lighter';
+    sprite(poseCtx, atlas, pose.next, x, baseline, scale, 0, pose.blend);
+    poseCtx.globalCompositeOperation = 'source-over';
+    ctx.save(); ctx.globalAlpha *= opacity; ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(poseLayer, 0, 0); ctx.restore();
+  }
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const atlases = {};
   let kind = 'idle', time = 0, playing = false, ready = false, destroyed = false;
@@ -149,7 +184,7 @@ export function createCompanion(canvas) {
     const p = palette();
     if (kind === 'idle' || !ready) {
       ground(ctx, p); sprite(ctx, atlases.hop, 0, 200, 278, 0.72);
-    } else PAINT[kind](ctx, time / 1000, p, atlases, time >= DURATIONS[kind]);
+    } else PAINT[kind](ctx, time / 1000, p, atlases, time >= DURATIONS[kind], drawPose);
   }
   function resize() {
     const width = canvas.getBoundingClientRect().width;

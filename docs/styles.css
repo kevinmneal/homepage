@@ -84,7 +84,7 @@ summary:hover .row-title, summary:hover .expand-icon, .project[open] .row-title 
 .project-description { min-width: 0; font-size: .8rem; line-height: 1.95; }
 .project-links { display: flex; flex-wrap: wrap; gap: .55rem 1.4rem; margin-top: .85rem; font-size: .7rem; color: var(--accent); }
 .project-figure { min-width: 0; width: 100%; }
-.project-figure svg { display: block; width: 100%; height: auto; overflow: visible; }
+.project-figure svg, .project-figure img { display: block; width: 100%; height: auto; overflow: visible; }
 .project-figure figcaption { text-align: center; font-size: .52rem; color: var(--muted); line-height: 1.5; margin-top: .4rem; }
 .figure-surface { fill: var(--surface); stroke: var(--line); stroke-width: 1.4; }
 .figure-line { stroke: var(--muted); stroke-width: 1.4; }
@@ -150,8 +150,6 @@ footer nav { display: flex; flex-wrap: wrap; gap: .75rem 1.6rem; }
   .packing-figure { width: 155px; }
   .terminal-figure { width: 142px; }
   .project-description { font-size: .8rem; }
-  .job-content { grid-template-columns: minmax(0,1fr) 110px; gap: .75rem; }
-  .job-content .terminal-figure { width: 110px; }
   .papers li { grid-template-columns: 1fr 30px; gap: .15rem 1rem; margin-top: 1.45rem; }
   .paper-kind { grid-column: 1; }
   .papers a { grid-column: 1; grid-row: 2; }

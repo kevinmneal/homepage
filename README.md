@@ -12,10 +12,15 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/companion.js`: the persistent spadefoot's contextual animations.
 - `docs/assets/companion/`: three sixteen-pose sprite atlases and frame metadata.
 - `docs/assets/spadefoot.png`: original owner-supplied character reference.
+- `docs/assets/spea-intermontana-map.svg`: compact map drawn from saved environmental-model predictions.
 - `docs/favicon.svg`: small spadefoot icon.
 - `docs/CNAME`: custom domain.
 
 The default theme is dark. The theme switch remembers a visitor's choice locally. Opening a project reveals its text and figure while the companion plays a related action once. Replay and pause are available; reduced-motion preferences show a still frame. The content remains readable without JavaScript. No contact address is published.
+
+Typing uses short bursts and rests with one quick blink. Typing and map poses blend on a separate canvas to keep their opacity stable; the hopping sequence uses its original sprite animation.
+
+The research thumbnail depicts modeled recording density for *Spea intermontana*. Its source hashes, model context, and display aggregation are recorded in [`scripts/spea-intermontana-map.provenance.json`](scripts/spea-intermontana-map.provenance.json). [`scripts/build-sdm-thumbnail.py`](scripts/build-sdm-thumbnail.py) regenerates it from the existing research archive; no model is fitted. Its scientific Python dependencies are needed only for regeneration, not for serving the homepage.
 
 Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. Project descriptions should reflect their linked public releases; distinguish working manuscripts and preprints from peer-reviewed publications.
 

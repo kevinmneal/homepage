@@ -19,30 +19,67 @@ function fixture({delayed=false,reduced=false,initialOpen=null,failMetadataOnce=
   const frames=new Map(),images=new Map(),observers=new Set(),events=[];
   const motion=new Emitter();motion.matches=reduced;
   const root={dataset:{theme:'dark'}};
-  const stats={frames:new Map(),lastDraw:[],drawCount:0};
-  const state={globalAlpha:1};let stack=[];
-  const methods={
-    save(){stack.push({...state})},restore(){const prev=stack.pop();if(prev)Object.assign(state,prev)},
-    clearRect(){stats.lastDraw=[]},
-    drawImage(img,sx,sy,sw,sh,dx,dy,dw,dh){
-      assert([sx,sy,sw,sh,dx,dy,dw,dh].every(Number.isFinite));
-      assert(sw>0&&sh>0&&dw>0&&dh>0);
-      assert(sx>=0&&sy>=0&&sx+sw<=data[img.name].width&&sy+sh<=data[img.name].height);
-      const index=data[img.name].frames.findIndex(v=>v[0]===sx&&v[1]===sy&&v[2]===sw&&v[3]===sh);
-      assert(index>=0,'draw source rectangle missing from atlas metadata');
-      assert(Number.isFinite(state.globalAlpha)&&state.globalAlpha>=0&&state.globalAlpha<=1);
-      if(!stats.frames.has(img.name))stats.frames.set(img.name,new Set());
-      stats.frames.get(img.name).add(index);
-      stats.lastDraw.push({name:img.name,index,alpha:state.globalAlpha,dx,dy,dw,dh});stats.drawCount++;
-    },
-  };
-  const ctx=new Proxy(state,{get(target,key){if(key in methods)return methods[key];if(key in target)return target[key];return(...args)=>{assert(args.every(v=>typeof v!=='number'||Number.isFinite(v)),`Non-finite argument to ${String(key)}`)};},set(target,key,v){target[key]=v;return true}});
-  const canvas=new Emitter();Object.assign(canvas,{width:400,height:340,getContext:()=>noCanvas?null:ctx,getBoundingClientRect:()=>({width:290})});
+  const stats={frames:new Map(),lastDraw:[],drawCount:0,blends:[]};
+  // Model source-over/lighter at a pixel opaque in both registered poses. This
+  // catches alpha dips without pretending to perform full image rasterization.
+  function makeCanvas(main=false){
+    const surface={draws:[],coverage:0};
+    const state={globalAlpha:1,globalCompositeOperation:'source-over'};
+    const stack=[];
+    const methods={
+      save(){stack.push({...state})},
+      restore(){const previous=stack.pop();if(previous)Object.assign(state,previous)},
+      clearRect(){surface.draws=[];surface.coverage=0;if(main)stats.lastDraw=[]},
+      drawImage(image,...args){
+        assert(args.every(Number.isFinite),'Non-finite drawImage coordinate');
+        assert(Number.isFinite(state.globalAlpha)&&state.globalAlpha>=0&&state.globalAlpha<=1);
+        const opacity=state.globalAlpha;
+        if(image.surface){
+          assert(main,'Unexpected nested pose layer');
+          assert.equal(args.length,2,'Expected the unscaled pose-layer drawImage overload');
+          assert.equal(state.globalCompositeOperation,'source-over','Pose layer must not brighten the main scene');
+          assert(Math.abs(image.surface.coverage-1)<1e-9,'Pose blend loses opacity at an opaque overlapping point');
+          const draws=image.surface.draws.map(draw=>({...draw,alpha:draw.alpha*opacity}));
+          stats.lastDraw.push(...draws);
+          stats.blends.push({time:now,coverage:image.surface.coverage,draws:image.surface.draws.map(draw=>({...draw}))});
+          stats.drawCount++;
+          return;
+        }
+        assert.equal(args.length,8,'Expected a registered atlas source rectangle');
+        const [sx,sy,sw,sh,dx,dy,dw,dh]=args;
+        assert(sw>0&&sh>0&&dw>0&&dh>0);
+        assert(sx>=0&&sy>=0&&sx+sw<=data[image.name].width&&sy+sh<=data[image.name].height);
+        const index=data[image.name].frames.findIndex(v=>v[0]===sx&&v[1]===sy&&v[2]===sw&&v[3]===sh);
+        assert(index>=0,'draw source rectangle missing from atlas metadata');
+        if(!stats.frames.has(image.name))stats.frames.set(image.name,new Set());
+        stats.frames.get(image.name).add(index);
+        const draw={name:image.name,index,alpha:opacity,dx,dy,dw,dh};
+        if(main){
+          assert.equal(state.globalCompositeOperation,'source-over','Direct sprite must not brighten the main scene');
+          stats.lastDraw.push(draw);
+        }else if(state.globalCompositeOperation==='lighter'){
+          surface.draws.push(draw);
+          surface.coverage=Math.min(1,surface.coverage+opacity);
+        }else{
+          assert.equal(state.globalCompositeOperation,'source-over','Unexpected pose composition mode');
+          surface.draws=surface.draws.map(previous=>({...previous,alpha:previous.alpha*(1-opacity)}));
+          surface.draws.push(draw);
+          surface.coverage=opacity+surface.coverage*(1-opacity);
+        }
+        stats.drawCount++;
+      },
+    };
+    const ctx=new Proxy(state,{get(target,key){if(key in methods)return methods[key];if(key in target)return target[key];return(...args)=>{assert(args.every(v=>typeof v!=='number'||Number.isFinite(v)),`Non-finite argument to ${String(key)}`)};},set(target,key,value){target[key]=value;return true}});
+    const result=new Emitter();
+    Object.assign(result,{width:400,height:340,surface,getContext:()=>main&&noCanvas?null:ctx,getBoundingClientRect:()=>({width:290})});
+    return result;
+  }
+  const canvas=makeCanvas(true);
   canvas.addEventListener('companionstate',e=>events.push({...e.detail}));
   const elements=new Map(['theme-toggle','theme-label','companion-label','companion-replay','companion-pause','companion-rail'].map(id=>[id,new Emitter()]));elements.set('companion',canvas);
   elements.get('theme-toggle').hidden=true;
   const projects=['insurance','ecology','packing','watermark'].map(kind=>{const el=new Emitter();el.dataset={scene:kind};el._open=kind===initialOpen;Object.defineProperty(el,'open',{get(){return this._open},set(value){if(this._open===value)return;this._open=value;if(value)projects.forEach(other=>{if(other!==this)other.open=false});queueMicrotask(()=>this.dispatchEvent({type:'toggle'}));}});return el;});
-  const doc=new Emitter();doc.documentElement=root;doc.activeElement=null;doc.hidden=false;doc.getElementById=id=>elements.get(id);doc.querySelectorAll=()=>projects;doc.querySelector=()=>({content:'#002b36'});
+  const doc=new Emitter();doc.createElement=tag=>{assert.equal(tag,'canvas');return makeCanvas()};doc.documentElement=root;doc.activeElement=null;doc.hidden=false;doc.getElementById=id=>elements.get(id);doc.querySelectorAll=()=>projects;doc.querySelector=()=>({content:'#002b36'});
   const win=new Emitter();win.matchMedia=()=>motion;win.devicePixelRatio=2;
   globalThis.document=doc;globalThis.window=win;globalThis.performance={now:()=>now};globalThis.localStorage={setItem(){}};
   globalThis.CustomEvent=class{constructor(type,options){this.type=type;this.detail=options?.detail}};
@@ -61,7 +98,44 @@ for(const [kind,duration]of Object.entries(durations)){
   const f=fixture();const {createCompanion}=await f.load();const api=createCompanion(f.canvas);await flush();
   assert.equal(f.last().kind,'idle');assert.equal(f.last().ready,true);assert.equal(f.frames.size,0);
   await api.select(kind);f.stats.frames.clear();
-  for(let t=0;t<=duration+20;t+=20)f.step(t);
+  const poseTrace=[];
+  for(let t=0;t<=duration+10;t+=10){
+    f.step(t);
+    const trackedAtlas=kind==='ecology'?'map':'typing';
+    const poses=f.stats.lastDraw.filter(draw=>draw.name===trackedAtlas&&draw.alpha>0);
+    if(poses.length){
+      const dominant=poses.reduce((a,b)=>b.alpha>=a.alpha?b:a);
+      const previous=poseTrace.at(-1);
+      if(previous?.index===dominant.index)previous.end=t;
+      else poseTrace.push({index:dominant.index,start:t,end:t});
+    }
+  }
+  if(kind==='insurance'||kind==='watermark'){
+    for(const blinkIndex of [9,10]){
+      const runs=poseTrace.filter(run=>run.index===blinkIndex);
+      assert.equal(runs.length,1,`${kind}: blink pose ${blinkIndex} must occur once`);
+      const held=runs[0].end-runs[0].start+10;
+      assert(held>=40&&held<=120,`${kind}: blink pose ${blinkIndex} held ${held} ms`);
+    }
+    const blink=poseTrace.findIndex(run=>run.index===9);
+    assert.deepEqual(poseTrace.slice(blink,blink+3).map(run=>run.index),[9,10,11],`${kind}: blink must close and reopen in order`);
+    const normal=poseTrace.slice(1,-1).filter(run=>![9,10,11].includes(run.index));
+    assert(normal.length>=8,`${kind}: too few normal pose holds to assess pacing`);
+    assert(normal.every(run=>run.end-run.start+10>=180),`${kind}: normal typing poses change too quickly`);
+    assert(normal.some(run=>run.end-run.start+10>=450),`${kind}: no natural pause between typing bursts`);
+    const final=poseTrace.at(-1);
+    assert.equal(final.index,15);assert(final.end-final.start>=500,`${kind}: missing quiet final hold`);
+    assert(!f.stats.blends.some(blend=>blend.draws.some(draw=>[9,10,11].includes(draw.index))),`${kind}: blink eyes should not crossfade`);
+    console.log(`${kind}: one short blink, slower normal poses, a natural pause, and a final hold verified.`);
+  }
+  if(kind==='ecology'){
+    assert(poseTrace.slice(1,-1).every(run=>run.end-run.start+10>=180),'Map poses change too quickly');
+    const final=poseTrace.at(-1);assert.equal(final.index,15);assert(final.end-final.start>=350,'Map should settle before playback ends');
+  }
+  if(kind!=='packing'){
+    assert(f.stats.blends.some(blend=>blend.draws.filter(draw=>draw.alpha>0&&draw.alpha<1).length===2),`${kind}: no intermediate pose crossfade exercised`);
+    assert(f.stats.blends.every(blend=>Math.abs(blend.coverage-1)<1e-9),`${kind}: crossfade opacity dipped`);
+  }else assert.equal(f.stats.blends.length,0,'Packing should keep its original direct-sprite animation');
   const atlas=kind==='ecology'?'map':kind==='packing'?'hop':'typing';
   assert.deepEqual([...f.stats.frames.get(atlas)].sort((a,b)=>a-b),Array.from({length:16},(_,i)=>i),kind+' did not show all 16 relevant atlas frames');
   assert.equal(f.last().playing,false);assert.equal(f.frames.size,0);

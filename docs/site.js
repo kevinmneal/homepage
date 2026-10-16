@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261015-companion';
+import { createCompanion } from './companion.js?v=20261015-refined';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');

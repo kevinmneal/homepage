@@ -1,0 +1,57 @@
+{
+  "asset": "docs/assets/spea-intermontana-map.svg",
+  "description": "Spea intermontana modeled recording density; saved full-data expanded environmental model.",
+  "source_run": "runs/2026-10-01-five-species-expanded-models-v2",
+  "source_paths_and_sha256": {
+    "runs/2026-10-01-five-species-expanded-models-v2/projection/intermontana_full.npz": "58b6ebdf40839f0637bc2113d684586ccfcc70cfa9875e0cd406a3f1a9b7414b",
+    "runs/2026-10-01-five-species-expanded-models-v2/feature_registry.json": "0b17432628a60f089ec19ccd8c3675d244f68da1307ebb814f0ca8cc52074eba",
+    "data/raw/climate/ne_10m_land.geojson": "1ac90796408bc6ad6911d69448485d3c4dbf2190370080368a09976e1c9f7416",
+    "runs/2026-09-24-cartographic-context-v1/admin1_boundaries.geojson": "aad75a02310906052959af99785ef2a86f246674bb784612b4ceaad92bd7293b",
+    "runs/2026-09-24-cartographic-context-v1/country_boundaries.geojson": "45bc4a2372956bb190d4aca86826fe80ef78919a5ff55cb694320749f34cb438"
+  },
+  "source_report": "reports/five_species_expanded_models.md",
+  "model": {
+    "species": "Spea intermontana",
+    "fitting_method": "CatBoost weighted classification",
+    "environmental_columns": 56,
+    "training_cells": 703,
+    "trees": 300,
+    "depth": 4,
+    "source_date": "2026-10-01"
+  },
+  "meaning": "Recorded-cell density relative to this species' available-landscape mean; not occupancy, abundance or a physiological niche boundary.",
+  "rendering": {
+    "crs": "+proj=aea +lat_1=20 +lat_2=50 +lat_0=35 +lon_0=-105 +datum=WGS84 +units=m +no_defs",
+    "tile_size_m": 25000,
+    "native_cells": 2395015,
+    "display_tiles": 2693,
+    "aggregation": "Physical-area-weighted arithmetic mean of exp(log_relative_density), followed by logarithmic coloring.",
+    "log_color_limits": [
+      -3,
+      3
+    ],
+    "colors": [
+      "#123a44",
+      "#174b54",
+      "#1c5c61",
+      "#226d6e",
+      "#287f7a",
+      "#2e9187",
+      "#48a392",
+      "#73b5a4",
+      "#a2c9b9"
+    ],
+    "native_area_weighted_mean": 0.9999999999999982,
+    "coarse_area_weighted_mean": 1.0000000000000002,
+    "geographic_context": "Natural Earth land, country boundaries and administrative boundaries; simplified to 6.5 km for display.",
+    "observations_shown": false
+  },
+  "limitations": [
+    "Thumbnail for a general research-project card, not a quantitative figure.",
+    "Blank exterior is unmodeled; coarse edges reflect the pre-existing analysis landscape.",
+    "Expanded 56-column model; distinct from the monthly-climate-only comparison in the public working manuscript.",
+    "No model was refitted and no new environmental prediction was made.",
+    "Full source prediction arrays remain in the research archive and are not bundled with this website."
+  ],
+  "asset_sha256": "5ea3da4ca036b4da64b3c4d26f6cdeb828658035c359041c547293e30799a52f"
+}

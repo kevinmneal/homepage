@@ -180,7 +180,11 @@ console.log('Initial reduced motion: each selected behavior holds its terminal p
 {
   const f=fixture({noCanvas:true});await import(pathToFileURL(dir+'site.js').href+'?fixture=no-canvas');await flush();
   assert.equal(f.elements.get('companion-rail').hidden,true);assert.equal(f.elements.get('theme-toggle').hidden,false);
+  assert.equal(f.elements.get('theme-label').textContent,'dark');
+  assert.match(f.elements.get('theme-toggle').attributes['aria-label'],/Theme: dark\. Switch to Solarized light theme/);
   f.elements.get('theme-toggle').dispatchEvent({type:'click'});assert.equal(f.doc.documentElement.dataset.theme,'light');
+  assert.equal(f.elements.get('theme-label').textContent,'light');
+  assert.match(f.elements.get('theme-toggle').attributes['aria-label'],/Theme: light\. Switch to Solarized dark theme/);
   f.projects[1].open=true;await flush();assert.equal(f.projects[1].open,true);assert.equal(f.frames.size,0);
   console.log('Canvas unavailable: empty rail hides; theme control and native dropdowns still function.');
 }

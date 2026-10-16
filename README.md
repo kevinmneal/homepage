@@ -8,7 +8,7 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 
 - `docs/index.html`: professional profile, public projects, personal background, publications, and scholarly links.
 - `docs/styles.css`: responsive layout and Solarized dark/light themes.
-- `docs/site.js`: theme preference, expandable projects, and animation controls.
+- `docs/site.js`: theme switch, expandable projects, and animation controls.
 - `docs/companion.js`: the persistent spadefoot's contextual animations.
 - `docs/assets/companion/`: three sixteen-pose sprite atlases and frame metadata.
 - `docs/assets/spadefoot.png`: original owner-supplied character reference.
@@ -16,13 +16,13 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/favicon.svg`: small spadefoot icon.
 - `docs/CNAME`: custom domain.
 
-The default theme is dark. The theme switch remembers a visitor's choice locally. Opening a project reveals its text and figure while the companion plays a related action once. Replay and pause are available; reduced-motion preferences show a still frame. The native "A bit about me" disclosure is independent of the project accordion and companion. All text remains readable without JavaScript; the companion rail stays hidden until initialized. No contact address is published.
+Every page load starts in dark mode. The theme switch displays the current mode and allows light mode for the current page; old stored theme choices are ignored. Opening a project reveals its text and figure while the companion plays a related action once. Replay and pause are available; reduced-motion preferences show a still frame. The native "A bit about me" disclosure is independent of the project accordion and companion. All text remains readable without JavaScript; the companion rail stays hidden until initialized. No contact address is published.
 
 The featured work is Fortegra, spadefoot biogeography, and six-triangle packing; watermarking is a secondary experiment link. Publications distinguish peer-reviewed articles from working manuscripts and preprints. Professional descriptions are supplied by the site owner; do not infer private implementation details, metrics, or outcomes.
 
 Typing uses short bursts and rests with one quick blink. Typing and map poses blend on a separate canvas to keep their opacity stable; the hopping sequence uses its original sprite animation.
 
-The research thumbnail depicts modeled recording density for *Spea intermontana*. Its source hashes, model context, and display aggregation are recorded in [`scripts/spea-intermontana-map.provenance.json`](scripts/spea-intermontana-map.provenance.json). [`scripts/build-sdm-thumbnail.py`](scripts/build-sdm-thumbnail.py) regenerates it from the existing research archive; no model is fitted. Its scientific Python dependencies are needed only for regeneration, not for serving the homepage.
+The research thumbnail depicts modeled recording density for *Spea intermontana*, using embedded samples from Seaborn’s Rocket palette. Its source hashes, model context, and display aggregation are recorded in [`scripts/spea-intermontana-map.provenance.json`](scripts/spea-intermontana-map.provenance.json). [`scripts/build-sdm-thumbnail.py`](scripts/build-sdm-thumbnail.py) regenerates it from the existing research archive; no model is fitted. Its scientific Python dependencies are needed only for regeneration, not for serving the homepage.
 
 Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. Project descriptions should reflect their linked public releases; distinguish working manuscripts and preprints from peer-reviewed publications.
 

@@ -20,7 +20,44 @@ from shapely.geometry import box, shape
 from shapely.ops import transform
 
 DISPLAY_CRS = "+proj=aea +lat_1=20 +lat_2=50 +lat_0=35 +lon_0=-105 +datum=WGS84 +units=m +no_defs"
-COLORS = ["#123a44", "#174b54", "#1c5c61", "#226d6e", "#287f7a", "#2e9187", "#48a392", "#73b5a4", "#a2c9b9"]
+COLORS = ["#251433", "#4c1d4b", "#751f58", "#a11a5b", "#cb1b4f", "#e83f3f", "#f3714d", "#f69c73", "#f7c6a6"]
+# Rocket samples are embedded; rendering needs no Seaborn dependency.
+PALETTE = {'name': 'rocket',
+ 'library': 'Seaborn',
+ 'version': '0.13.2',
+ 'source_url': 'https://raw.githubusercontent.com/mwaskom/seaborn/v0.13.2/seaborn/cm.py',
+ 'source_sha256': 'f209b5441c841725b417bb24af50edfd428fdb9bab142b01f72418db9f0cb4c0',
+ 'lookup_table_indices': [25, 51, 76, 102, 128, 153, 179, 204, 230],
+ 'sampling': 'Nine evenly spaced samples at 0.1 through 0.9 from the 256-entry Rocket lookup table, rounded '
+             'to 8-bit RGB.',
+ 'license': 'BSD-3-Clause',
+ 'license_notice': 'Copyright (c) 2012-2023, Michael L. Waskom\n'
+                   'All rights reserved.\n'
+                   '\n'
+                   'Redistribution and use in source and binary forms, with or without\n'
+                   'modification, are permitted provided that the following conditions are met:\n'
+                   '\n'
+                   '* Redistributions of source code must retain the above copyright notice, this\n'
+                   '  list of conditions and the following disclaimer.\n'
+                   '\n'
+                   '* Redistributions in binary form must reproduce the above copyright notice,\n'
+                   '  this list of conditions and the following disclaimer in the documentation\n'
+                   '  and/or other materials provided with the distribution.\n'
+                   '\n'
+                   '* Neither the name of the project nor the names of its\n'
+                   '  contributors may be used to endorse or promote products derived from\n'
+                   '  this software without specific prior written permission.\n'
+                   '\n'
+                   'THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"\n'
+                   'AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n'
+                   'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n'
+                   'DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\n'
+                   'FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n'
+                   'DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n'
+                   'SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n'
+                   'CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n'
+                   'OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n'
+                   'OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.'}
 RUN = "runs/2026-10-01-five-species-expanded-models-v2"
 TILE_M = 25000
 
@@ -116,7 +153,7 @@ def main():
     chunks = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="map-title map-description">',
         '<title id="map-title">Spea intermontana modeled recording density</title>',
-        '<desc id="map-description">A coarse view of an existing environmental model for the Great Basin spadefoot. Teal colors show modeled recorded-cell density relative to the available-landscape mean, not occupancy probability. Saved native predictions were averaged by physical area into 25-kilometer equal-area display tiles. No occurrence locations are shown.</desc>',
+        '<desc id="map-description">A coarse view of an existing environmental model for the Great Basin spadefoot. Rocket colors show modeled recorded-cell density relative to the available-landscape mean, not occupancy probability. Saved native predictions were averaged by physical area into 25-kilometer equal-area display tiles. No occurrence locations are shown.</desc>',
         f'<!-- Source prediction SHA-256: {sha256(prediction)}. Rendering and provenance: scripts/build-sdm-thumbnail.py and scripts/spea-intermontana-map.provenance.json. -->',
         f'<path d="{context_paths(land_path)}" fill="#839496" fill-opacity=".08" stroke="#839496" stroke-opacity=".45" stroke-width=".55" fill-rule="evenodd"/>',
     ]
@@ -137,7 +174,7 @@ def main():
         "source_report": "reports/five_species_expanded_models.md",
         "model": {"species": "Spea intermontana", "fitting_method": "CatBoost weighted classification", "environmental_columns": 56, "training_cells": 703, "trees": 300, "depth": 4, "source_date": "2026-10-01"},
         "meaning": "Recorded-cell density relative to this species' available-landscape mean; not occupancy, abundance or a physiological niche boundary.",
-        "rendering": {"crs": DISPLAY_CRS, "tile_size_m": TILE_M, "native_cells": len(ids), "display_tiles": int(valid.sum()), "aggregation": "Physical-area-weighted arithmetic mean of exp(log_relative_density), followed by logarithmic coloring.", "log_color_limits": [-3, 3], "colors": COLORS, "native_area_weighted_mean": native_mean, "coarse_area_weighted_mean": coarse_mean, "geographic_context": "Natural Earth land, country boundaries and administrative boundaries; simplified to 6.5 km for display.", "observations_shown": False},
+        "rendering": {"crs": DISPLAY_CRS, "tile_size_m": TILE_M, "native_cells": len(ids), "display_tiles": int(valid.sum()), "aggregation": "Physical-area-weighted arithmetic mean of exp(log_relative_density), followed by logarithmic coloring.", "log_color_limits": [-3, 3], "colors": COLORS, "palette": PALETTE, "native_area_weighted_mean": native_mean, "coarse_area_weighted_mean": coarse_mean, "geographic_context": "Natural Earth land, country boundaries and administrative boundaries; simplified to 6.5 km for display.", "observations_shown": False},
         "limitations": ["Thumbnail for a general research-project card, not a quantitative figure.", "Blank exterior is unmodeled; coarse edges reflect the pre-existing analysis landscape.", "Expanded 56-column model; distinct from the monthly-climate-only comparison in the public working manuscript.", "No model was refitted and no new environmental prediction was made.", "Full source prediction arrays remain in the research archive and are not bundled with this website."],
         "asset_sha256": sha256(target),
     }

@@ -105,9 +105,10 @@ summary:hover .row-title, summary:hover .expand-icon, .project[open] .row-title 
 .other-experiments { margin-top: 1rem; font-size: .7rem; color: var(--muted); }
 .other-experiments a { color: var(--accent); }
 .about { grid-row: 3; margin-top: 1.7rem; }
-.about-details summary { justify-content: space-between; padding: .6rem 0; font-size: .8rem; color: var(--muted); }
+.about-details { border: 1px solid var(--line); border-left: 2px solid var(--accent); background: color-mix(in srgb, var(--surface) 55%, var(--bg)); }
+.about-details summary { justify-content: space-between; padding: .9rem 1rem; font-size: .9rem; color: var(--heading); }
 .about-details summary:hover, .about-details[open] summary { color: var(--accent); }
-.about-copy { max-width: 68ch; padding-top: .7rem; font-size: .84rem; line-height: 1.95; }
+.about-copy { max-width: 68ch; padding: .2rem 1rem 1.1rem; font-size: .84rem; line-height: 1.95; }
 .writing { grid-row: 4; margin-top: 2.5rem; }
 .publication-group { margin: 1.5rem 0 .4rem; color: var(--accent); font-size: .7rem; font-weight: 400; }
 .papers { margin: 0; padding: 0; list-style: none; }

@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261015-editorial';
+import { createCompanion } from './companion.js?v=20261015-touches';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');
@@ -30,8 +30,8 @@ try {
 
 function syncTheme() {
   const light = root.dataset.theme === 'light';
-  themeLabel.textContent = light ? 'dark' : 'light';
-  themeButton.setAttribute('aria-label', `Switch to Solarized ${light ? 'dark' : 'light'} theme`);
+  themeLabel.textContent = light ? 'light' : 'dark';
+  themeButton.setAttribute('aria-label', `Theme: ${light ? 'light' : 'dark'}. Switch to Solarized ${light ? 'dark' : 'light'} theme`);
   themeColor.content = light ? '#fdf6e3' : '#002b36';
   companion?.redraw();
 }
@@ -39,7 +39,6 @@ syncTheme();
 themeButton.hidden = false;
 themeButton.addEventListener('click', () => {
   root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
-  try { localStorage.setItem('kmn-theme', root.dataset.theme); } catch (_) {}
   syncTheme();
 });
 function syncSelection() {

@@ -120,6 +120,8 @@ summary:hover .row-title, summary:hover .expand-icon, .project[open] .row-title 
 .papers a span { color: var(--accent); }
 footer { margin-top: 3rem; border-top: 1px solid var(--line); padding: 1.5rem 0 2.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; color: var(--muted); font-size: .63rem; }
 footer nav { display: flex; flex-wrap: wrap; gap: .75rem 1.6rem; }
+.footer-links { display: grid; gap: .85rem; min-width: 0; }
+.reading-links { font-size: .6rem; }
 .copyright { font-size: .58rem; white-space: nowrap; }
 .skip-link { position: absolute; z-index: 10; top: -6rem; left: 1rem; padding: .5rem 1rem; color: var(--heading); background: var(--surface); }
 .skip-link:focus { top: .5rem; }

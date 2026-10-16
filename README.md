@@ -2,7 +2,7 @@
 
 Personal professional homepage: https://kevinmneal.com
 
-Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site files live in `docs/`; there are no dependencies or build steps, analytics, external fonts, or third-party scripts.
+Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site files live in `docs/`; serving them needs no dependencies or build step. There are no analytics, external fonts, or third-party scripts. A Python standard-library authoring script keeps Markdown exports and discovery files synchronized with the HTML.
 
 ## Editing
 
@@ -20,6 +20,7 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/assets/spea-intermontana-map.svg`: compact map drawn from saved environmental-model predictions.
 - `docs/favicon.svg`: small spadefoot icon.
 - `docs/CNAME`: custom domain.
+- `scripts/build-agent-pages.py`: generates the two Markdown pages, `llms.txt`, `sitemap.xml`, and `robots.txt` from the public HTML.
 
 Every page load starts in dark mode. The theme switch displays the current mode and allows light mode for the current page; old stored theme choices are ignored. Opening a project reveals its text and figure while the companion plays a related action once. Replay and pause are available; reduced-motion preferences show a still frame. The native "A bit about me" disclosure is independent of the project accordion and companion. All text remains readable without JavaScript; the companion rail stays hidden until initialized. No contact address is published.
 
@@ -38,6 +39,24 @@ The original jump atlas is paired with ImageGen atlases for the ground-scuttling
 The research thumbnail depicts modeled recording density for *Spea intermontana*, using embedded samples from Seaborn’s Rocket palette. Its source hashes, model context, and display aggregation are recorded in [`scripts/spea-intermontana-map.provenance.json`](scripts/spea-intermontana-map.provenance.json). [`scripts/build-sdm-thumbnail.py`](scripts/build-sdm-thumbnail.py) regenerates it from the existing research archive; no model is fitted. Its scientific Python dependencies are needed only for regeneration, not for serving the homepage.
 
 Only add public content. Keep credentials, private drafts, and account setup notes outside this repository. Project descriptions should reflect their linked public releases; distinguish working manuscripts and preprints from peer-reviewed publications.
+
+## Reading and discovery
+
+The HTML is the source of truth. After editing either page, run:
+
+```sh
+python3 scripts/build-agent-pages.py
+python3 scripts/build-agent-pages.py --check
+```
+
+Commit the regenerated files with the source changes. The script requires only Python 3.10+ and its standard library; it makes no network or model calls. It preserves expanded disclosure text, publication categories and years, source links, and professional profiles, while leaving out interactive controls and decorative artwork. Links in the exports are absolute so they remain useful when copied into another context. The map's accessible description and source image are retained.
+
+- `/index.md` and `/lab/index.md` are faithful text versions of the homepage and lab. Both HTML pages expose a **View as Markdown** footer link and a `rel="alternate"` discovery link.
+- `/llms.txt` is a compact directory of those pages, research sources, and profiles, following the [llms.txt proposal](https://llmstxt.org/). Each HTML page links to it with `rel="describedby"` and a footer link.
+- `/sitemap.xml` lists the two canonical HTML pages, avoiding duplicate format URLs and invented modification dates.
+- `/robots.txt` permits all crawlers and advertises the sitemap. This preserves the previous default public crawling policy; it adds no vendor-specific blocks or separate training-use signals.
+
+GitHub Actions runs the read-only `--check` on pushes to `main` and pull requests. It detects missing/stale output, broken internal destinations, missing discovery/footer links, and blocked crawling. This check runs alongside GitHub Pages; it does not gate Pages deployment. Run it locally before publishing. `.nojekyll` keeps the exports as static files. These additions improve access and navigation; search indexing and agent adoption remain outside the site's control.
 
 ## Local preview
 

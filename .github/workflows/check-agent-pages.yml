@@ -1,0 +1,19 @@
+name: Check agent-readable pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Verify generated pages and discovery files
+        run: python3 scripts/build-agent-pages.py --check

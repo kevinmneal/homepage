@@ -1,0 +1,22 @@
+# Kevin M. Neal
+
+> Kevin M. Neal — principal engineer in applied AI, evolutionary biologist by training, and independent researcher in biogeography and computational mathematics.
+
+## Pages
+
+- [Kevin M. Neal](https://kevinmneal.com/index.md): Kevin M. Neal — principal engineer in applied AI, evolutionary biologist by training, and independent researcher in biogeography and computational mathematics.
+- [Lab — Kevin M. Neal](https://kevinmneal.com/lab/index.md): Small games, interactive explanations, and experiments from Kevin M. Neal.
+
+## Research sources
+
+- [Spadefoot biogeography: Research & results](https://github.com/kevinmneal/spea-climate-research)
+- [Spadefoot biogeography: Manuscript](https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md)
+- [Six triangles: Interactive explainer](https://kevinmneal.github.io/six-triangle-packing/)
+- [Six triangles: Code & proof](https://github.com/kevinmneal/six-triangle-packing)
+
+## Profiles
+
+- [GitHub](https://github.com/kevinmneal)
+- [ORCID](https://orcid.org/0000-0003-4360-8027)
+- [ResearchGate](https://www.researchgate.net/profile/Kevin-Neal-5)
+- [LinkedIn](https://www.linkedin.com/in/kevinmneal/)

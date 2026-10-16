@@ -51,7 +51,7 @@ python3 scripts/build-agent-pages.py --check
 
 Commit the regenerated files with the source changes. The script requires only Python 3.10+ and its standard library; it makes no network or model calls. It preserves expanded disclosure text, publication categories and years, source links, and professional profiles, while leaving out interactive controls and decorative artwork. Links in the exports are absolute so they remain useful when copied into another context. The map's accessible description and source image are retained.
 
-- `/index.md` and `/lab/index.md` are faithful text versions of the homepage and lab. Both HTML pages expose a **View as Markdown** footer link and a `rel="alternate"` discovery link.
+- `/index.md` and `/lab/index.md` are faithful text versions of the homepage and lab. Both HTML pages expose a `rel="alternate"` discovery link. The visible **View as Markdown** links open byte-identical `/index.md.txt` and `/lab/index.md.txt` copies served as `text/plain`, so browsers can display the Markdown source inline instead of treating its MIME type as a download.
 - `/llms.txt` is a compact directory of those pages, research sources, and profiles, following the [llms.txt proposal](https://llmstxt.org/). Each HTML page links to it with `rel="describedby"` and a footer link.
 - `/sitemap.xml` lists the two canonical HTML pages, avoiding duplicate format URLs and invented modification dates.
 - `/robots.txt` permits all crawlers and advertises the sitemap. This preserves the previous default public crawling policy; it adds no vendor-specific blocks or separate training-use signals.

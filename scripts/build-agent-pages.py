@@ -153,13 +153,14 @@ def read_page(relative):
     title = plain(next(tree.find('title')))
     main = next(tree.find('main'))
     markdown_url = urljoin(canonical, 'index.md')
+    browser_url = urljoin(canonical, 'index.md.txt')
     links = list(tree.find('link'))
     assert any(n.attrs.get('rel') == 'alternate' and n.attrs.get('type') == 'text/markdown'
                and urljoin(canonical, n.attrs['href']) == markdown_url for n in links), relative + ': missing Markdown discovery link'
     assert any(n.attrs.get('rel') == 'describedby' and urljoin(canonical, n.attrs['href']) == urljoin(canonical, '/llms.txt')
                for n in links), relative + ': missing llms.txt discovery link'
     footer = next(tree.find('footer'))
-    assert any(urljoin(canonical, n.attrs['href']) == markdown_url for n in footer.find('a')), relative + ': missing visible Markdown link'
+    assert any(urljoin(canonical, n.attrs['href']) == browser_url for n in footer.find('a')), relative + ': missing visible Markdown link'
     assert not any(n.attrs.get('name', '').lower() == 'robots' and 'noindex' in n.attrs.get('content', '').lower()
                    for n in tree.find('meta')), relative + ': source page is noindex'
     content = markdown(main, canonical)
@@ -178,6 +179,9 @@ def outputs():
     home = pages[0]
     origin = home['canonical']
     result = {path.replace('.html', '.md'): page['markdown'] for path, page in zip(PAGES, pages)}
+    # Browsers vary in whether text/markdown opens inline or downloads. The
+    # visible links use identical .txt copies, served as text/plain by Pages.
+    result.update({path.replace('.html', '.md.txt'): page['markdown'] for path, page in zip(PAGES, pages)})
     index = f"# {home['title']}\n\n> {home['description']}\n\n## Pages\n\n"
     index += '\n'.join('- ' + link(p['title'], p['markdown_url'], origin) + ': ' + p['description'] for p in pages)
     index += '\n\n## Research sources\n\n'
@@ -229,7 +233,7 @@ def main():
     if stale:
         raise SystemExit('Missing or stale: ' + ', '.join(stale) + '\nRun python3 scripts/build-agent-pages.py')
     if args.check:
-        print('Five generated files match the HTML; discovery links, local destinations, and crawler access verified.')
+        print('Seven generated files match the HTML; discovery links, local destinations, and crawler access verified.')
 
 
 if __name__ == '__main__':

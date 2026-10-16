@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Kevin M. Neal — applied AI engineer and evolutionary biologist. Selected work in biogeography, geometry, and machine learning.">
+  <meta name="description" content="Kevin M. Neal — principal engineer in applied AI, evolutionary biologist by training, and independent researcher in biogeography and computational mathematics.">
   <meta name="theme-color" content="#002b36">
   <meta property="og:title" content="Kevin M. Neal">
-  <meta property="og:description" content="Applied AI engineer and evolutionary biologist. Selected work in biogeography, geometry, and machine learning.">
+  <meta property="og:description" content="Principal engineer in applied AI, evolutionary biologist by training, and independent researcher in biogeography and computational mathematics.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://kevinmneal.com/">
   <link rel="canonical" href="https://kevinmneal.com/">
   <title>Kevin M. Neal</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <script>try { if (localStorage.getItem('kmn-theme') === 'light') document.documentElement.dataset.theme = 'light'; } catch (_) {}</script>
-  <link rel="stylesheet" href="./styles.css?v=20261015-refined">
-  <script src="./site.js?v=20261015-refined" type="module"></script>
+  <link rel="stylesheet" href="./styles.css?v=20261015-editorial">
+  <script src="./site.js?v=20261015-editorial" type="module"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -29,11 +29,11 @@
     <main id="main" class="layout" tabindex="-1">
       <section class="intro" aria-labelledby="name">
         <h1 id="name">Kevin M. Neal<span class="degree">, PhD</span></h1>
-        <p class="discipline">Applied AI &amp; evolutionary biology</p>
-        <p class="bio">Engineer with a PhD from UCLA. My independent work explores biogeography, geometry, and machine learning.</p>
+        <p class="discipline">Principal engineer in applied AI</p>
+        <p class="bio">Evolutionary biologist by training, with a PhD from UCLA. I build dependable AI systems and pursue independent research in biogeography and computational mathematics.</p>
       </section>
 
-      <aside id="companion-rail" class="companion-rail" aria-label="Animated spadefoot companion">
+      <aside id="companion-rail" class="companion-rail" aria-label="Animated spadefoot companion" hidden>
         <div class="companion-stage">
           <canvas id="companion" width="400" height="340" aria-hidden="true"></canvas>
         </div>
@@ -52,7 +52,11 @@
           <details class="project" name="projects" data-scene="insurance">
             <summary><span class="row-number" aria-hidden="true">01</span><span class="row-copy"><span class="row-title">Fortegra</span><span class="row-subtitle">Principal Engineer</span></span><span class="row-category">work</span><span class="expand-icon" aria-hidden="true"></span></summary>
             <div class="project-content job-content">
-              <div class="project-description"><p>I work on applied AI at Fortegra, from experiments and prototypes to production software.</p></div>
+              <div class="project-description">
+                <p>At Fortegra, I build applied AI systems for insurance workflows, including document-heavy underwriting.</p>
+                <p>My work spans architecture, document understanding, LLM workflows, evaluation, and production engineering. A recurring challenge is turning complex source material into structured information that people can trace back to evidence and review.</p>
+                <p>I previously worked on applied AI and document processing at Precedent.</p>
+              </div>
               <figure class="project-figure terminal-figure" aria-label="A generic computer terminal illustration.">
                 <svg viewBox="0 0 200 135" fill="none" aria-hidden="true">
                   <rect class="figure-surface" x="24" y="16" width="152" height="92" rx="3"/>
@@ -64,9 +68,9 @@
             </div>
           </details>
           <details class="project" name="projects" data-scene="ecology">
-            <summary><span class="row-number" aria-hidden="true">02</span><span class="row-copy"><span class="row-title">Spadefoot biogeography</span><span class="row-subtitle">Climate representation &amp; geographical prediction</span></span><span class="row-category">research</span><span class="expand-icon" aria-hidden="true"></span></summary>
+            <summary><span class="row-number" aria-hidden="true">02</span><span class="row-copy"><span class="row-title">Spadefoot biogeography</span><span class="row-subtitle">Climate, distributions &amp; conservation</span></span><span class="row-category">research</span><span class="expand-icon" aria-hidden="true"></span></summary>
             <div class="project-content">
-              <div class="project-description"><p>I study spadefoot distributions using climate data and statistical models. The project includes a working manuscript, open results, and reproducible comparisons.</p><div class="project-links"><a href="https://github.com/kevinmneal/spea-climate-research">Research &amp; results <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Manuscript <span aria-hidden="true">↗</span></a></div></div>
+              <div class="project-description"><p>My doctoral research explored how genetic variation and environmental differences inform spadefoot conservation. I’m returning to those questions through models of where <i>Spea</i> are recorded. The public project compares climate representations and their geographical predictions, with a working manuscript, released results, and reproducible comparison tables.</p><div class="project-links"><a href="https://github.com/kevinmneal/spea-climate-research">Research &amp; results <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Manuscript <span aria-hidden="true">↗</span></a></div></div>
               <figure class="project-figure map-figure">
                 <img src="./assets/spea-intermontana-map.svg" width="220" height="220" alt="Spea intermontana modeled recording density." loading="lazy">
               </figure>
@@ -75,7 +79,7 @@
           <details class="project" name="projects" data-scene="packing">
             <summary><span class="row-number" aria-hidden="true">03</span><span class="row-copy"><span class="row-title">Six triangles</span><span class="row-subtitle">An optimal packing, with replayable certificates</span></span><span class="row-category">geometry</span><span class="expand-icon" aria-hidden="true"></span></summary>
             <div class="project-content">
-              <div class="project-description"><p>A computer-assisted proof of the optimal packing of six unit equilateral triangles. Explore the geometry, read the preprint, or replay the exact certificates. Further Lean formalization is in progress.</p><div class="project-links"><a href="https://kevinmneal.github.io/six-triangle-packing/">Interactive explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/six-triangle-packing">Code &amp; proof <span aria-hidden="true">↗</span></a></div></div>
+              <div class="project-description"><p>An independent computer-assisted optimality proof for a previously known arrangement of six unit equilateral triangles in an equilateral container. The project pairs exact, replayable certificates with an interactive explainer. Lean formalization is in progress; the full proof is not yet formalized in Lean.</p><div class="project-links"><a href="https://kevinmneal.github.io/six-triangle-packing/">Interactive explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/six-triangle-packing">Code &amp; proof <span aria-hidden="true">↗</span></a></div></div>
               <figure class="project-figure packing-figure">
                 <svg viewBox="35 50 427 376" fill="none" role="img" aria-label="The project's published arrangement of six unit equilateral triangles inside an equilateral triangle.">
                   <g class="packing-triangles"><polygon points="55,406 185,406 120,293.41670"/><polygon points="312.02062,406 442.02062,406 377.02062,293.41670"/><polygon points="183.51031,183.41361 313.51031,183.41361 248.51031,70.83031"/><polygon points="173.67010,313.04065 290.85052,256.749 183.51031,183.41361"/><polygon points="185,406 313.51031,386.37604 232.26031,284.89483"/><polygon points="232.26031,284.89483 313.51031,386.37604 360.77062,265.27087"/></g>
@@ -85,28 +89,33 @@
               </figure>
             </div>
           </details>
-          <details class="project" name="projects" data-scene="watermark">
-            <summary><span class="row-number" aria-hidden="true">04</span><span class="row-copy"><span class="row-title">LLM watermarking</span><span class="row-subtitle">Statistical signals in token choices</span></span><span class="row-category">explainer</span><span class="expand-icon" aria-hidden="true"></span></summary>
-            <div class="project-content">
-              <div class="project-description"><p>An interactive explanation of how statistical signals can be embedded in ordinary token choices. Experiment with a small teaching model and watch evidence accumulate.</p><div class="project-links"><a href="https://kevinmneal.github.io/llm-watermarking/">Try the explainer <span aria-hidden="true">↗</span></a><a href="https://github.com/kevinmneal/llm-watermarking">Source code <span aria-hidden="true">↗</span></a></div></div>
-              <figure class="project-figure watermark-figure">
-                <svg viewBox="0 0 220 145" fill="none" role="img" aria-label="Highlighted token choices contribute to an aggregate signal.">
-                  <g class="token-boxes"><rect x="13" y="20" width="38" height="25"/><rect class="selected-token" x="58" y="20" width="69" height="25"/><rect class="selected-token" x="134" y="20" width="73" height="25"/></g>
-                  <g class="token-text"><text x="32" y="36">a</text><text class="selected-token-text" x="92" y="36">subtle</text><text class="selected-token-text" x="170" y="36">signal</text></g>
-                  <path class="figure-line" d="M110 58v22m-4-5 4 5 4-5M20 126h181"/>
-                  <path class="signal-line" d="M21 122h27v-6h27v3h27v-12h27v-5h27v4h27V91h17"/>
-                </svg>
-              </figure>
-            </div>
-          </details>
         </div>
+        <p class="other-experiments">Other experiments: <a href="https://kevinmneal.github.io/llm-watermarking/">LLM watermarking explainer <span aria-hidden="true">↗</span></a></p>
+      </section>
+
+      <section class="about" aria-label="Personal background">
+        <details class="about-details">
+          <summary><span>A bit about me</span><span class="expand-icon" aria-hidden="true"></span></summary>
+          <div class="about-copy">
+            <p>I trained as an evolutionary biologist and moved into applied AI engineering after my PhD. I enjoy the work, but I never lost my interest in open-ended research.</p>
+            <p>Leaving academia was a practical choice. Building a career and raising a family left little time for pursuing scientific questions on my own.</p>
+            <p>Coding agents have made room for that again. They help me turn ideas into experiments, revisit spadefoot biogeography, and venture into unfamiliar mathematics. It feels like a part of my scientific life has opened up again.</p>
+            <p>That’s what draws me to agentic science: how AI-assisted workflows can extend what an individual researcher can do. For me, that includes checking results, preserving uncertainty, making the work reproducible, and inviting independent criticism.</p>
+          </div>
+        </details>
       </section>
 
       <section class="writing" aria-labelledby="writing-title">
-        <div class="section-heading"><h2 id="writing-title">Selected writing</h2><a href="https://scholar.google.com/citations?user=L6ln8EwAAAAJ&amp;hl=en">Scholar <span aria-hidden="true">↗</span></a></div>
+        <div class="section-heading"><h2 id="writing-title">Publications &amp; writing</h2><a href="https://scholar.google.com/citations?user=L6ln8EwAAAAJ&amp;hl=en">Scholar <span aria-hidden="true">↗</span></a></div>
+        <h3 class="publication-group">Peer-reviewed articles</h3>
         <ol class="papers">
-          <li><span class="paper-kind">manuscript</span><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Climate representation and geographical prediction of recorded <i>Spea</i> occurrences <span aria-hidden="true">↗</span></a><time datetime="2026-10-15">2026</time></li>
-          <li><span class="paper-kind">preprint</span><a href="https://github.com/kevinmneal/six-triangle-packing/releases/download/v1.0.0/six-triangle-packing-preprint-v1.0.0.pdf">A computer-assisted proof of the optimal packing of six equilateral triangles <span aria-hidden="true">↗</span></a><time datetime="2026-10-08">2026</time></li>
+          <li><div class="paper-copy"><a href="https://doi.org/10.1093/jhered/esaa049">Conservation Genomics of the Threatened Western Spadefoot, <i>Spea hammondii</i>, in Urbanized Southern California <span aria-hidden="true">↗</span></a><span class="paper-venue">Neal, Fisher, Mitrovich &amp; Shaffer · <cite>Journal of Heredity</cite></span></div><time datetime="2020">2020</time></li>
+          <li><div class="paper-copy"><a href="https://doi.org/10.1007/s10592-018-1066-7">Genetic structure and environmental niche modeling confirm two evolutionary and conservation units within the western spadefoot (<i>Spea hammondii</i>) <span aria-hidden="true">↗</span></a><span class="paper-venue">Neal, Johnson &amp; Shaffer · <cite>Conservation Genetics</cite></span></div><time datetime="2018">2018</time></li>
+        </ol>
+        <h3 class="publication-group">Manuscripts &amp; preprints</h3>
+        <ol class="papers">
+          <li><div class="paper-copy"><a href="https://github.com/kevinmneal/spea-climate-research/blob/main/docs/manuscript.md">Climate representation and geographical prediction of recorded <i>Spea</i> occurrences <span aria-hidden="true">↗</span></a><span class="paper-venue">Working manuscript</span></div><time datetime="2026-10-15">2026</time></li>
+          <li><div class="paper-copy"><a href="https://github.com/kevinmneal/six-triangle-packing/releases/download/v1.0.0/six-triangle-packing-preprint-v1.0.0.pdf">A computer-assisted proof of the optimal packing of six equilateral triangles <span aria-hidden="true">↗</span></a><span class="paper-venue">Computational preprint</span></div><time datetime="2026-10-08">2026</time></li>
         </ol>
       </section>
     </main>

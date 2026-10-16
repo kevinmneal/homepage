@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261015-refined';
+import { createCompanion } from './companion.js?v=20261015-editorial';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');
@@ -23,6 +23,7 @@ canvas.addEventListener('companionstate', event => {
 });
 try {
   companion = createCompanion(canvas);
+  document.getElementById('companion-rail').hidden = false;
 } catch (_) {
   document.getElementById('companion-rail').hidden = true;
 }

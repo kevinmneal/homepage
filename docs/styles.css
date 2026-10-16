@@ -47,13 +47,13 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .theme-toggle { display: inline-flex; align-items: center; gap: .6rem; border: none; background: transparent; color: var(--muted); font-size: .74rem; padding: .55rem 0 .55rem .7rem; cursor: pointer; min-height: 38px; }
 .theme-toggle:hover { color: var(--heading); }
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; column-gap: 3.2rem; align-items: start; }
-.intro, .work, .writing { grid-column: 1; min-width: 0; }
+.intro, .work, .about, .writing { grid-column: 1; min-width: 0; }
 .intro { grid-row: 1; padding: 4.5rem 0 3.1rem; }
 h1 { color: var(--heading); font-size: clamp(1.8rem, 3vw, 2.25rem); line-height: 1.2; font-weight: 500; letter-spacing: -.065em; }
 .degree { font-size: .44em; font-weight: 400; letter-spacing: -.03em; color: var(--muted); }
 .discipline { color: var(--accent); font-size: .8rem; margin-top: .8rem; }
 .bio { max-width: 66ch; font-size: .84rem; line-height: 1.95; margin-top: 1.15rem; }
-.companion-rail { grid-column: 2; grid-row: 1 / 4; position: sticky; top: 3rem; align-self: start; margin-top: 4rem; min-width: 0; }
+.companion-rail { grid-column: 2; grid-row: 1 / 5; position: sticky; top: 3rem; align-self: start; margin-top: 4rem; min-width: 0; }
 .companion-stage { width: 100%; }
 #companion { display: block; width: 100%; height: auto; aspect-ratio: 400 / 340; image-rendering: auto; }
 .companion-meta { min-height: 3.4rem; padding-top: .3rem; text-align: center; }
@@ -78,10 +78,11 @@ summary::-webkit-details-marker { display: none; }
 .expand-icon::before, .expand-icon::after { content: ''; position: absolute; background: currentColor; }
 .expand-icon::before { height: 1px; width: 11px; top: 5px; left: 0; }
 .expand-icon::after { height: 11px; width: 1px; top: 0; left: 5px; transition: transform .16s ease; }
-.project[open] .expand-icon::after { transform: rotate(90deg); }
+.project[open] .expand-icon::after, .about-details[open] .expand-icon::after { transform: rotate(90deg); }
 summary:hover .row-title, summary:hover .expand-icon, .project[open] .row-title { color: var(--accent); }
 .project-content { display: grid; grid-template-columns: minmax(0, 1fr) 162px; align-items: center; gap: 1.5rem; padding: .15rem 0 1.7rem 2.3rem; }
-.project-description { min-width: 0; font-size: .8rem; line-height: 1.95; }
+.project-description { min-width: 0; font-size: .84rem; line-height: 1.95; }
+.project-description p + p, .about-copy p + p { margin-top: 1em; }
 .project-links { display: flex; flex-wrap: wrap; gap: .55rem 1.4rem; margin-top: .85rem; font-size: .7rem; color: var(--accent); }
 .project-figure { min-width: 0; width: 100%; }
 .project-figure svg, .project-figure img { display: block; width: 100%; height: auto; overflow: visible; }
@@ -101,10 +102,19 @@ summary:hover .row-title, summary:hover .expand-icon, .project[open] .row-title 
 .token-text { fill: var(--text); font: 10px "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; text-anchor: middle; }
 .selected-token-text { fill: var(--green); }
 .signal-line { stroke: var(--green); stroke-width: 2; }
-.writing { grid-row: 3; margin-top: 3rem; }
+.other-experiments { margin-top: 1rem; font-size: .7rem; color: var(--muted); }
+.other-experiments a { color: var(--accent); }
+.about { grid-row: 3; margin-top: 1.7rem; }
+.about-details summary { justify-content: space-between; padding: .6rem 0; font-size: .8rem; color: var(--muted); }
+.about-details summary:hover, .about-details[open] summary { color: var(--accent); }
+.about-copy { max-width: 68ch; padding-top: .7rem; font-size: .84rem; line-height: 1.95; }
+.writing { grid-row: 4; margin-top: 2.5rem; }
+.publication-group { margin: 1.5rem 0 .4rem; color: var(--accent); font-size: .7rem; font-weight: 400; }
 .papers { margin: 0; padding: 0; list-style: none; }
-.papers li { display: grid; grid-template-columns: 76px minmax(0, 1fr) 30px; gap: .9rem; font-size: .73rem; line-height: 1.9; margin-top: 1.2rem; }
-.paper-kind, .papers time { color: var(--muted); font-size: .57rem; padding-top: .15rem; }
+.papers li { display: grid; grid-template-columns: minmax(0, 1fr) 34px; gap: 1rem; font-size: .78rem; line-height: 1.85; margin-top: 1.1rem; }
+.paper-venue { display: block; color: var(--muted); font-size: .68rem; margin-top: .2rem; }
+.paper-venue cite { font-style: normal; }
+.papers time { color: var(--muted); font-size: .65rem; padding-top: .15rem; text-align: right; }
 .papers a { color: var(--text); }
 .papers a span { color: var(--accent); }
 footer { margin-top: 3rem; border-top: 1px solid var(--line); padding: 1.5rem 0 2.2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; color: var(--muted); font-size: .63rem; }
@@ -126,50 +136,40 @@ footer nav { display: flex; flex-wrap: wrap; gap: .75rem 1.6rem; }
   h1 { font-size: 2rem; }
   .bio { max-width: 68ch; }
   .companion-rail { order: 1; position: sticky; z-index: 3; top: 0; display: flex; flex-direction: row-reverse; align-items: center; justify-content: space-between; width: 100%; margin-top: 0; margin-bottom: 1.8rem; padding: .15rem 0 .4rem; border-bottom: 1px solid var(--line); background: var(--bg); }
-  .companion-stage { flex: 0 0 clamp(126px, 32vw, 158px); width: clamp(126px, 32vw, 158px); }
+  .companion-stage { flex: 0 0 108px; width: 108px; }
   .companion-meta { padding: 0 .5rem 0 0; min-height: 0; max-width: 24ch; text-align: left; }
   #companion-label { font-size: .62rem; }
   .companion-controls { justify-content: flex-start; gap: 1.35rem; margin-top: .3rem; }
   .companion-controls button { font-size: .6rem; min-height: 36px; }
   .work { order: 2; width: 100%; }
-  .writing { order: 3; width: 100%; }
-  .project, summary, .project-links a, .papers a { scroll-margin-top: 160px; }
+  .about { order: 3; width: 100%; }
+  .writing { order: 4; width: 100%; }
+  .project, summary, .project-links a, .papers a, .other-experiments a { scroll-margin-top: 120px; }
   .project-content { grid-template-columns: minmax(0, 1fr) 166px; gap: 1.5rem; }
   .row-category { display: block; }
   .row-title { font-size: .9rem; }
-  .row-subtitle { font-size: .66rem; }
-  .project-description { font-size: .8rem; }
-  .papers li { grid-template-columns: 84px minmax(0, 1fr) 30px; font-size: .7rem; }
+  .row-subtitle { font-size: .75rem; }
 }
 @media (max-width: 560px) {
   .row-category { display: none; }
   summary { gap: .9rem; padding: 1.1rem 0; }
-  .row-subtitle { font-size: .62rem; }
   .project-content { grid-template-columns: minmax(0, 1fr); gap: 1.2rem; padding-left: 2.1rem; }
   .project-figure { width: 178px; justify-self: center; }
   .packing-figure { width: 155px; }
   .terminal-figure { width: 142px; }
-  .project-description { font-size: .8rem; }
-  .papers li { grid-template-columns: 1fr 30px; gap: .15rem 1rem; margin-top: 1.45rem; }
-  .paper-kind { grid-column: 1; }
-  .papers a { grid-column: 1; grid-row: 2; }
-  .papers time { grid-column: 2; grid-row: 1; text-align: right; }
+  .papers li { gap: .75rem; }
   .writing { margin-top: 2.5rem; }
   footer { align-items: flex-start; }
 }
 @media (max-width: 380px) {
   .page { width: calc(100% - 2.25rem); }
   h1 { font-size: 1.75rem; }
-  .discipline { font-size: .68rem; }
-  .bio { font-size: .74rem; }
-  .companion-stage { flex-basis: 120px; width: 120px; }
+  .discipline { font-size: .75rem; }
   #companion-label { font-size: .56rem; }
   .companion-controls button { font-size: .56rem; }
-  .row-title { font-size: .81rem; }
-  .row-subtitle { font-size: .58rem; }
+  .row-title { font-size: .88rem; }
   .row-number { font-size: .57rem; width: .95rem; }
   .project-content { padding-left: 0; }
-  .project-description { font-size: .78rem; }
   .project-links { font-size: .64rem; }
   footer nav { gap: .6rem 1rem; font-size: .59rem; }
   .copyright { display: none; }

@@ -7,7 +7,10 @@ const mix = (a, b, t) => a + (b - a) * t;
 const smooth = t => { t = clamp(t); return t * t * (3 - 2 * t); };
 const phase = (t, start, end) => clamp((t - start) / (end - start));
 const atlasCache = new Map();
+const reactionCache = new Map();
+const REACTION_FILES = { curious: 'curious-v3', happy: 'startle-v3', croak: 'puff-v3' };
 let metadataPromise;
+let reactionMetadataPromise;
 
 function metadata() {
   metadataPromise ??= fetch(new URL('frames.json', ROOT)).then(response => {
@@ -32,6 +35,38 @@ function loadAtlas(name) {
     })).catch(error => { atlasCache.delete(name); throw error; }));
   }
   return atlasCache.get(name);
+}
+function reactionMetadata() {
+  reactionMetadataPromise ??= fetch(new URL('reactions-v3.json', ROOT)).then(response => {
+    if (!response.ok) throw new Error('Reaction frame metadata unavailable');
+    return response.json();
+  }).then(data => {
+    for (const name of Object.keys(REACTION_FILES)) {
+      const atlas = data[name];
+      if (!atlas || !Number.isFinite(atlas.width) || !Number.isFinite(atlas.height) ||
+          !Array.isArray(atlas.frames) || atlas.frames.length !== 16 ||
+          !atlas.frames.every(f => Array.isArray(f) && f.length === 4 && f.every(Number.isFinite) &&
+            f[0] >= 0 && f[1] >= 0 && f[2] > 0 && f[3] > 0 && f[0] + f[2] <= atlas.width && f[1] + f[3] <= atlas.height)) {
+        throw new Error('Reaction frame metadata invalid');
+      }
+    }
+    return data;
+  }).catch(error => { reactionMetadataPromise = undefined; throw error; });
+  return reactionMetadataPromise;
+}
+function loadReaction(name) {
+  if (!reactionCache.has(name)) {
+    const imagePromise = new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Reaction artwork unavailable'));
+      image.src = new URL(`${REACTION_FILES[name]}.png`, ROOT).href;
+    });
+    reactionCache.set(name, Promise.all([imagePromise, reactionMetadata()]).then(([image, data]) => ({
+      image, frames: data[name].frames,
+    })).catch(error => { reactionCache.delete(name); throw error; }));
+  }
+  return reactionCache.get(name);
 }
 function palette() {
   return document.documentElement.dataset.theme === 'light'
@@ -146,7 +181,7 @@ function watermarkScene(ctx, t, p, atlases, finished, drawPose) {
 }
 const PAINT = { insurance: typingScene, ecology: mapScene, packing: packingScene, watermark: watermarkScene };
 const REQUIRED = { idle: ['hop'], insurance: ['hop','typing'], ecology: ['hop','map'], packing: ['hop'], watermark: ['hop','typing'] };
-const REACTIONS = { curious: 560, happy: 640, croak: 720 };
+const REACTIONS = { curious: 1440, happy: 1360, croak: 1520 };
 
 export function createCompanion(canvas) {
   const ctx = canvas.getContext('2d');
@@ -171,9 +206,18 @@ export function createCompanion(canvas) {
   }
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const atlases = {};
+  const reactionAtlases = {};
   let kind = 'idle', time = 0, playing = false, ready = false, destroyed = false;
   let frameId = 0, startTime = 0, selection = 0;
-  let reaction = null, autoplay = true;
+  let reaction = null, autoplay = true, reactionGeneration = 0, reactionsPreloaded = false;
+  function preloadReactions() {
+    if (reactionsPreloaded || destroyed) return;
+    reactionsPreloaded = true;
+    for (const name of Object.keys(REACTIONS)) {
+      loadReaction(name).then(atlas => { if (!destroyed) reactionAtlases[name] = atlas; })
+        .catch(() => { /* Optional artwork retries when the visitor reacts. */ });
+    }
+  }
   function report(error = null) {
     canvas.dispatchEvent(new CustomEvent('companionstate', {
       detail: { kind, playing, ready, reducedMotion: motion.matches, reaction: reaction?.kind ?? null, error },
@@ -185,17 +229,14 @@ export function createCompanion(canvas) {
     ctx.clearRect(0, 0, WIDTH, HEIGHT); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     const p = palette();
     if (reaction) {
-      // Reuse the resting/crouching poses already in memory. A reaction briefly
-      // replaces the picture, then returns to the selected scene where it stopped.
+      // Each atlas contains the actual face/body motion. Keep one scale for the
+      // whole sequence, registered against the height of the resting character.
       const progress = clamp(reaction.time / REACTIONS[reaction.kind]);
-      const pulse = Math.sin(progress * Math.PI);
-      const curious = reaction.kind === 'curious';
-      const happy = reaction.kind === 'happy';
-      const pose = curious ? 0 : progress < .2 || progress > .8 ? 0 : progress < .38 || progress > .62 ? 1 : 2;
+      const pose = Math.min(15, Math.floor(progress * 16));
+      const scale = atlases.hop.frames[0][3] * .72 / reaction.atlas.frames[0][3];
+      const lift = reaction.kind === 'happy' ? Math.sin(phase(progress, .2, .8) * Math.PI) * 20 : 0;
       ground(ctx, p);
-      sprite(ctx, atlases.hop, pose, 200 + (curious ? pulse * 6 : 0),
-        278 - (happy ? pulse * 12 : 0), .72 * (reaction.kind === 'croak' ? 1 + pulse * .06 : 1),
-        curious ? pulse * -.06 : 0);
+      sprite(ctx, reaction.atlas, pose, 200, 278 - lift, scale);
     } else if (kind === 'idle' || !ready) {
       ground(ctx, p); sprite(ctx, atlases.hop, 0, 200, 278, 0.72);
     } else PAINT[kind](ctx, time / 1000, p, atlases, time >= DURATIONS[kind], drawPose);
@@ -207,6 +248,7 @@ export function createCompanion(canvas) {
     draw();
   }
   function stop() {
+    reactionGeneration++;
     playing = false; cancelAnimationFrame(frameId); frameId = 0;
     const wasReacting = Boolean(reaction); reaction = null;
     if (wasReacting) draw();
@@ -216,6 +258,7 @@ export function createCompanion(canvas) {
     frameId = 0;
     if (destroyed) return;
     if (reaction) {
+      if (motion.matches || document.hidden) { stop(); return; }
       reaction.time = Math.max(0, now - reaction.started);
       if (reaction.time >= REACTIONS[reaction.kind]) {
         reaction = null; draw(); report();
@@ -239,28 +282,48 @@ export function createCompanion(canvas) {
     const ticket = ++selection;
     stop(); autoplay = true; kind = nextKind; ready = false; time = 0; report(); draw();
     try {
-      await Promise.all(REQUIRED[kind].map(async name => { atlases[name] ??= await loadAtlas(name); }));
+      await Promise.all(REQUIRED[kind].map(async name => {
+        atlases[name] ??= await loadAtlas(name);
+        if (name === 'hop') preloadReactions();
+      }));
       if (destroyed || ticket !== selection) return;
       ready = true; resize();
       if (kind !== 'idle' && autoplay) play(); else report();
     } catch (error) { if (ticket === selection && !destroyed) report(error.message); }
   }
-  function react(nextReaction) {
-    if (destroyed || !Object.hasOwn(REACTIONS, nextReaction)) return;
+  async function react(nextReaction) {
+    if (destroyed || !Object.hasOwn(REACTIONS, nextReaction)) return false;
     // Never let an in-flight project load restart playback after an interaction.
     autoplay = false; stop();
-    if (motion.matches || document.hidden || !atlases.hop) return;
-    reaction = { kind: nextReaction, started: performance.now(), time: 0 };
-    draw(); frameId = requestAnimationFrame(tick); report();
+    if (motion.matches || document.hidden) return false;
+    const ticket = reactionGeneration;
+    try {
+      let atlas = reactionAtlases[nextReaction];
+      if (!atlas || !atlases.hop) {
+        const loaded = await Promise.all([loadAtlas('hop'), loadReaction(nextReaction)]);
+        atlases.hop ??= loaded[0]; atlas = loaded[1];
+      }
+      if (destroyed || ticket !== reactionGeneration || motion.matches || document.hidden) return false;
+      reactionAtlases[nextReaction] = atlas;
+      reaction = { kind: nextReaction, atlas, started: performance.now(), time: 0 };
+      draw(); frameId = requestAnimationFrame(tick); report();
+      return true;
+    } catch (_) { return false; }
   }
   function onMotionChange() {
     if (motion.matches) { stop(); time = DURATIONS[kind]; draw(); }
     report();
   }
+  function pause() { autoplay = false; stop(); }
+  function onVisibilityChange() { if (document.hidden) pause(); }
   const observer = new ResizeObserver(resize);
-  observer.observe(canvas); motion.addEventListener('change', onMotionChange); select('idle');
+  observer.observe(canvas); motion.addEventListener('change', onMotionChange);
+  document.addEventListener('visibilitychange', onVisibilityChange); select('idle');
   return {
-    select, react, replay: play, pause: stop, redraw: resize,
-    destroy() { stop(); destroyed = true; selection++; observer.disconnect(); motion.removeEventListener('change', onMotionChange); },
+    select, react, replay: play, pause, redraw: resize,
+    destroy() {
+      stop(); destroyed = true; selection++; observer.disconnect();
+      motion.removeEventListener('change', onMotionChange); document.removeEventListener('visibilitychange', onVisibilityChange);
+    },
   };
 }

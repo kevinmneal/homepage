@@ -84,7 +84,7 @@ async function withGame(options, check) {
         if (key === 'ellipse') assert(args[2] >= 0 && args[3] >= 0, 'Ellipse radii stay nonnegative');
         if (key === 'arc') assert(args[2] >= 0, 'Arc radius stays nonnegative');
         if (key === 'fillText') stats.labels.push(args[0]);
-        if (key === 'bezierCurveTo' && state.strokeStyle === '#64d5c7') stats.blasts.push({ x: args[0] - 38, alpha: state.globalAlpha });
+        if (key === 'bezierCurveTo' && ['#64d5c7', '#08746e'].includes(state.strokeStyle)) stats.blasts.push({ x: args[0] - 38, alpha: state.globalAlpha });
         if (key === 'drawImage') {
           const [image, sx, sy, sw, sh, dx, dy, dw, dh] = args;
           assert.equal(args.length, 9);

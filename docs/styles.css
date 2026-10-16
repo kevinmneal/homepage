@@ -239,7 +239,6 @@ body.hop-open { overflow: hidden; }
 }
 @media print { .hop-dialog { display: none; } }
 
-.companion-hint { min-height: 1.5em; margin-top: .2rem; color: var(--accent); font-size: .62rem; }
 .hop-header-actions { display: flex; align-items: center; gap: .5rem; }
 .hop-sound { padding: .3rem .5rem; min-height: 44px; border: 0; background: transparent; color: var(--muted); font-size: .62rem; cursor: pointer; }
 .hop-sound[aria-pressed="true"] { color: var(--accent); }

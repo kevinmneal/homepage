@@ -15,7 +15,7 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/hop-audio.js`: optional synthesized effects, off until enabled.
 - `docs/lab/`: the small experiments index and its theme switch.
 - `docs/assets/game/`: new croak/obstacle atlases, frame metadata, and exact ImageGen prompts.
-- `docs/assets/companion/`: three sixteen-pose sprite atlases and frame metadata.
+- `docs/assets/companion/`: project and reaction sprite atlases, frame metadata, and reaction-generation prompts.
 - `docs/assets/spadefoot.png`: original owner-supplied character reference.
 - `docs/assets/spea-intermontana-map.svg`: compact map drawn from saved environmental-model predictions.
 - `docs/favicon.svg`: small spadefoot icon.
@@ -27,7 +27,7 @@ The featured work is Fortegra, spadefoot biogeography, and six-triangle packing;
 
 Typing uses short bursts and rests with one quick blink. Typing and map poses blend on a separate canvas to keep their opacity stable; the hopping sequence uses its original sprite animation.
 
-The companion reacts briefly to a mouse hover and the first two taps. Three clicks/taps, each within 1.8 seconds of the last, open **MAKE HOP!**; keyboard and assistive activation open it directly. The independent [lab page](docs/lab/index.html) groups the game with the existing watermarking and packing explainers, plus a small teaser for future experiments. Its game link uses `/#make-hop` (relative paths also support the GitHub project URL).
+The companion uses three dedicated sixteen-pose sequences: a curious head turn and blink on mouse hover, a startled hop on the first tap, and an indignant throat puff on the second. These have no captions or tooltip. Reactions play once and return to the selected project scene; reduced motion suppresses them. [Exact reaction prompts and assets](docs/assets/companion/REACTIONS-v3.md) accompany the original PNGs; `scripts/build-reaction-frames.py` reproduces their frame metadata using Pillow. Three clicks/taps, each within 1.8 seconds of the last, open **MAKE HOP!**; keyboard and assistive activation open it directly. The independent [lab page](docs/lab/index.html) groups the game with the existing watermarking and packing explainers, plus a small teaser for future experiments. Its game link uses `/#make-hop` (relative paths also support the GitHub project URL).
 
 Space/Up or the field/Hop button jumps; F or Make way! launches a rechargeable force front that sends obstacles tumbling away; P pauses. Three hits end a run. Fireflies add points and recharge the croak. Speed rises from 210 to 370 logical pixels/second over 80 seconds. Tumbleweeds enter the spawn mix after 15 seconds and high moths after 30; running underneath a moth is safe. Spacing leaves room to land between obstacles. The pace and stage are shown in the dialog.
 

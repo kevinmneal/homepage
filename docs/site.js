@@ -1,4 +1,4 @@
-import { createCompanion } from './companion.js?v=20261016-hop-v2';
+import { createCompanion } from './companion.js?v=20261016-reactions-v3';
 
 const root = document.documentElement;
 const themeButton = document.getElementById('theme-toggle');
@@ -60,28 +60,20 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) compa
 window.addEventListener('pagehide', () => companion?.pause());
 // Native details keeps text and figures available without JavaScript.
 
-// Curiosity rewards a hover or tap; three taps uncover the field trip.
+// The character reacts without captions; three taps uncover the field trip.
 const secret = document.getElementById('companion-secret');
-const hint = document.getElementById('companion-hint');
 let tapCount = 0;
 let lastTap = 0;
-let hintTimer;
+let tapTimer;
 let openingGame = false;
-function tease(message, reaction) {
-  companion?.react(reaction);
-  if (!hint) return;
-  clearTimeout(hintTimer);
-  hint.textContent = message;
-  hintTimer = setTimeout(() => { hint.textContent = ''; tapCount = 0; }, 1800);
-}
 secret?.addEventListener('pointerenter', event => {
-  if (event.pointerType === 'mouse' && tapCount === 0) tease('…oh, hello.', 'curious');
+  if (event.pointerType === 'mouse' && tapCount === 0) companion?.react('curious');
 });
 async function openFieldTrip() {
   if (openingGame) return;
   openingGame = true;
-  clearTimeout(hintTimer);
-  if (hint) hint.textContent = '';
+  clearTimeout(tapTimer);
+  tapCount = 0;
   companion?.pause();
   try {
     const { openHopGame } = await import('./hop-game.js?v=20261016-hop-v2');
@@ -97,7 +89,9 @@ secret?.addEventListener('click', event => {
   tapCount = now - lastTap < 1800 ? tapCount + 1 : 1;
   lastTap = now;
   if (event.detail !== 0 && tapCount < 3) {
-    tease(tapCount === 1 ? 'mrrp?' : '…again?', tapCount === 1 ? 'happy' : 'croak');
+    companion?.react(tapCount === 1 ? 'happy' : 'croak');
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 1800);
     return;
   }
   tapCount = 0;

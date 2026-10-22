@@ -1027,7 +1027,14 @@ document.addEventListener("pointercancel", (event) => {
 });
 for (const surface of [ui.board, ui.pieces]) {
   surface.addEventListener("lostpointercapture", (event) => {
-    if (event.pointerId === drag?.pointerId) finishDrag(false);
+    // Touch capture starts on the cell or SVG under the finger. Its loss bubbles
+    // here when capture transfers to this surface; the drag is still active.
+    if (
+      event.pointerId === drag?.pointerId &&
+      event.target === surface &&
+      !surface.hasPointerCapture(event.pointerId)
+    )
+      finishDrag(false);
   });
   surface.addEventListener("dragstart", (event) => event.preventDefault());
 }

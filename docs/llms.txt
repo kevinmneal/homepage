@@ -7,6 +7,10 @@
 - [Kevin M. Neal](https://kevinmneal.com/index.md): Kevin M. Neal — principal engineer in applied AI, evolutionary biologist by training, and independent researcher in biogeography and computational mathematics.
 - [Lab — Kevin M. Neal](https://kevinmneal.com/lab/index.md): Small games, interactive explanations, and experiments from Kevin M. Neal.
 
+## Interactive pages
+
+- [Switchback Foundry — Kevin M. Neal](https://kevinmneal.com/lab/switchback/): A small puzzle about arriving differently. Play a maze, inspect its solution, and change one tile to see what makes it work.
+
 ## Research sources
 
 - [Spadefoot biogeography: Research & results](https://github.com/kevinmneal/spea-climate-research)

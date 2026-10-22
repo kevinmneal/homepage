@@ -1,4 +1,4 @@
-name: Check agent-readable pages
+name: Check pages and puzzle
 
 on:
   push:
@@ -17,3 +17,7 @@ jobs:
           persist-credentials: false
       - name: Verify generated pages and discovery files
         run: python3 scripts/build-agent-pages.py --check
+      - name: Verify Switchback rules and puzzle properties
+        run: |
+          node scripts/check-switchback.mjs
+          node --check docs/lab/switchback/app.mjs

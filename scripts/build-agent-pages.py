@@ -18,6 +18,7 @@ from xml.sax.saxutils import escape as xml_escape
 
 ROOT = Path(__file__).resolve().parents[1] / 'docs'
 PAGES = ('index.html', 'lab/index.html')
+INTERACTIVE_PAGES = ('lab/switchback/index.html',)
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
 OMIT_TAGS = {'aside', 'button', 'canvas', 'dialog', 'script', 'style', 'svg'}
 OMIT_CLASSES = {'interaction-hint', 'row-number', 'row-category', 'expand-icon', 'lab-cta'}
@@ -176,6 +177,14 @@ def read_page(relative):
 
 def outputs():
     pages = [read_page(path) for path in PAGES]
+    interactive = []
+    for path in INTERACTIVE_PAGES:
+        tree = Document((ROOT / path).read_text(encoding='utf-8')).root
+        interactive.append(dict(
+            canonical=next(n.attrs['href'] for n in tree.find('link') if n.attrs.get('rel') == 'canonical'),
+            title=plain(next(tree.find('title'))),
+            description=next(n.attrs['content'] for n in tree.find('meta') if n.attrs.get('name') == 'description'),
+        ))
     home = pages[0]
     origin = home['canonical']
     result = {path.replace('.html', '.md'): page['markdown'] for path, page in zip(PAGES, pages)}
@@ -184,6 +193,8 @@ def outputs():
     result.update({path.replace('.html', '.md.txt'): page['markdown'] for path, page in zip(PAGES, pages)})
     index = f"# {home['title']}\n\n> {home['description']}\n\n## Pages\n\n"
     index += '\n'.join('- ' + link(p['title'], p['markdown_url'], origin) + ': ' + p['description'] for p in pages)
+    index += '\n\n## Interactive pages\n\n'
+    index += '\n'.join('- ' + link(p['title'], p['canonical'], origin) + ': ' + p['description'] for p in interactive)
     index += '\n\n## Research sources\n\n'
     for project in home['main'].find('details', 'project'):
         title = plain(next(project.find(css_class='row-title')))
@@ -195,7 +206,7 @@ def outputs():
     result['llms.txt'] = tidy(index)
     result['sitemap.xml'] = ('<?xml version="1.0" encoding="UTF-8"?>\n'
                              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-                             + ''.join('  <url><loc>' + xml_escape(p['canonical']) + '</loc></url>\n' for p in pages)
+                             + ''.join('  <url><loc>' + xml_escape(p['canonical']) + '</loc></url>\n' for p in pages + interactive)
                              + '</urlset>\n')
     result['robots.txt'] = 'User-agent: *\nDisallow:\n\nSitemap: ' + urljoin(origin, 'sitemap.xml') + '\n'
 
@@ -212,7 +223,7 @@ def outputs():
             assert target in result or (ROOT / target).is_file(), f'{name}: missing target {url}'
     robots = RobotFileParser()
     robots.parse(result['robots.txt'].splitlines())
-    for url in [p['canonical'] for p in pages] + [urljoin(origin, name) for name in result]:
+    for url in [p['canonical'] for p in pages + interactive] + [urljoin(origin, name) for name in result]:
         assert robots.can_fetch('*', url), 'Crawler access blocked: ' + url
     return result
 

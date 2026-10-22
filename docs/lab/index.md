@@ -10,6 +10,10 @@ Small games, interactive explanations, and ideas that are easier to explore than
 
 A spadefoot, a desert, and an unnecessarily powerful croak. Hop the rocks. Chase the fireflies. Make way.
 
+## [Switchback Foundry](https://kevinmneal.com/lab/switchback/)
+
+A small maze with one-way turns and a switch that changes what comes next. Find your way out, then make a prediction about changing one tile.
+
 ## [A hidden signal in the words](https://kevinmneal.github.io/llm-watermarking/)
 
 Explore how token choices can carry a watermark in generated text.

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#002b36">
+  <meta name="description" content="A small puzzle about arriving differently. Play a maze, inspect its solution, and change one tile to see what makes it work.">
+  <link rel="canonical" href="https://kevinmneal.com/lab/switchback/">
+  <link rel="describedby" href="../../llms.txt" type="text/plain">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="./switchback.css?v=20261022-discovery">
+  <script type="module" src="../lab.js"></script>
+  <script type="module" src="./app.mjs?v=20261022-discovery"></script>
+  <title>Switchback Foundry — Kevin M. Neal</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to puzzle</a>
+  <div class="page switchback-page">
+    <header class="topbar"><a class="wordmark" href="../">kevinmneal<span>.com</span> / lab</a><button class="theme-toggle" id="theme-toggle" type="button" hidden>theme: <span id="theme-label">dark</span></button></header>
+    <main id="main" tabindex="-1">
+      <section class="intro-switchback">
+        <p class="eyebrow">a small maze with a change of direction <span class="prototype">playable prototype</span></p>
+        <h1>Switchback <span>Foundry</span><span class="title-mark" aria-hidden="true">↱</span></h1>
+        <p>Find the exit. You can go forward, or turn and step.<br class="desktop-break"> The catch: you can only turn one way at a time.</p>
+      </section>
+      <noscript><p class="notice">This puzzle needs JavaScript for movement and the local solver. Enable JavaScript to play. Nothing is sent to a server.</p></noscript>
+      <div class="instrument" id="instrument" hidden>
+        <section class="board-section" aria-label="Puzzle board">
+          <div class="board-heading"><h2><span class="eyebrow">01</span> <span id="puzzle-title">The maze</span></h2><span id="board-version">original puzzle</span></div>
+          <div class="board-wrap"><svg id="board" viewBox="0 0 648 648" role="img" tabindex="0" aria-labelledby="board-title board-description" aria-describedby="keyboard-help" aria-keyshortcuts="F ArrowUp T Space Z R"><title id="board-title">Switchback maze</title><desc id="board-description"></desc><defs><pattern id="wall-hatch" patternUnits="userSpaceOnUse" width="9" height="9"><path d="M-2 2L2 -2M0 9L9 0M7 11L11 7" class="hatch"/></pattern></defs><g id="tiles"></g><g id="trail"></g><g id="markers"></g><g id="player"></g></svg></div>
+          <div class="legend" aria-label="Board key"><span><i class="legend-player">↑</i> you</span><span><i class="legend-switch">◆</i> flips turn</span><span><i class="legend-exit">E</i> exit</span><span><i class="legend-start">○</i> start</span></div>
+          <p class="keyboard-help" id="keyboard-help">Click or Tab to the maze for keys: F / ↑ forward, T / Space turn, Z undo, R reset.</p>
+          <div class="board-note"><span class="tiny-arrow" aria-hidden="true">↳</span><p id="board-note">A switch flips your allowed turn each time you enter it. The new rule stays with you.</p></div>
+          <details class="board-text"><summary>Read the board as text</summary><pre id="text-board"></pre><p>Coordinates use column letters and row numbers. # wall · floor ◆ switch O start E exit. Your current position and available actions are described in the play panel.</p></details>
+        </section>
+        <div class="workbench">
+          <section class="play-panel" aria-labelledby="play-heading">
+            <div class="section-label"><h2 id="play-heading">Make your way out</h2><span><strong id="move-count">0</strong> <span id="move-unit">moves</span></span></div>
+            <div class="state-strip"><div><span class="state-label">facing</span><strong id="heading-value">↑ North</strong></div><div><span class="state-label">turn</span><strong id="mode-value">↶ Left</strong></div><span class="coordinate"><span id="position-value"></span><span id="mobile-moves"></span></span></div>
+            <p class="rule-copy">Turn relative to your arrow, then step one square. You cannot turn in place.</p>
+            <div class="move-buttons"><button type="button" id="forward" class="action-button"><span class="action-icon" id="forward-icon" aria-hidden="true">↑</span><span class="action-copy"><span>Forward</span><span class="action-target" id="forward-target"></span><small>F or ↑</small></span></button><button type="button" id="turn" class="action-button"><span class="action-icon" id="turn-icon" aria-hidden="true">↶</span><span class="action-copy"><span id="turn-label">Left + step</span><span class="action-target" id="turn-target"></span><small>T or Space</small></span></button></div>
+            <div class="small-controls"><button type="button" id="undo">↶ Undo <kbd>Z</kbd></button><button type="button" id="reset">Reset <kbd>R</kbd></button></div>
+            <p id="message" class="message"></p>
+            <p id="challenge-status" class="challenge-status" hidden></p>
+            <div id="success-panel" class="success-panel" aria-label="After reaching the exit" hidden>
+              <p>You found your way. The next challenge is up to you.</p>
+              <div class="followup-buttons"><button type="button" id="start-challenge">Try the route challenge</button><button type="button" id="explore-switch">Explore the switch</button></div>
+            </div>
+            <section class="solution-panel" aria-label="Hints and walkthrough">
+              <button type="button" id="hint-toggle" class="reveal-button" aria-expanded="false" aria-controls="hints">Need a nudge? <span aria-hidden="true">+</span></button>
+              <div id="hints" class="hints" hidden>
+                <p id="hint-count" class="eyebrow"></p><p id="hint-text"></p>
+                <div class="hint-actions"><button type="button" id="next-hint" class="text-button">Another hint</button><button type="button" id="reveal" class="text-button">Show the full solution</button></div>
+              </div>
+              <div id="walkthrough" hidden>
+                <div class="section-label"><h2>Follow the changing state</h2><button type="button" id="leave-reveal" class="text-button">Resume your run</button></div>
+                <p id="reveal-step" class="reveal-step"></p>
+                <div class="replay-buttons"><button type="button" id="previous-step" aria-label="Previous solution step">←</button><button type="button" id="auto-play">Play route</button><button type="button" id="next-step" aria-label="Next solution step">Next step →</button></div>
+                <p id="step-explanation" class="step-explanation"></p>
+                <div id="revisit" class="revisit" hidden></div>
+              </div>
+            </section>
+          </section>
+          <details class="edit-panel" id="experiment">
+            <summary>Explore the switch <span>optional</span></summary>
+            <div class="experiment-body">
+              <p class="eyebrow">change one thing</p><h2 id="edit-heading">What do you expect?</h2>
+              <p>Imagine the switch at <strong id="edit-coordinate"></strong> becomes ordinary floor. The passage stays open, but entering it no longer changes your turn rule. Could you still reach the exit?</p>
+              <div class="tile-choice" role="group" aria-label="Your prediction"><button type="button" id="predict-yes" aria-pressed="false">A route still exists</button><button type="button" id="predict-no" aria-pressed="false">No route remains</button></div>
+              <p id="prediction-status" class="prediction-status">Make a prediction, then try the changed maze or check your answer.</p>
+              <div class="experiment-actions"><button type="button" id="try-prediction" disabled>Try with floor</button><button type="button" id="check-prediction" disabled>Check my prediction</button></div>
+              <div id="experiment-result" class="solver-result" role="region" aria-label="Prediction result" hidden><span class="result-dot" aria-hidden="true"></span><div><strong id="solver-verdict"></strong><p id="solver-detail"></p></div></div>
+              <details id="experiment-proof" class="experiment-proof" hidden><summary>How was this checked?</summary><p id="solver-proof"></p></details>
+              <button type="button" id="restore" class="text-button" hidden>Return to the original maze ↗</button>
+              <p class="edit-note">Trying the floor version starts a fresh run. Checking your prediction leaves your run in place.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+      <p id="announcement" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+      <section class="under-the-hood" id="afterword" hidden>
+        <details><summary>A closer look at the way home <span aria-hidden="true">+</span></summary><div class="explanation"><p>A place in this puzzle has three parts: <strong>square, heading, and allowed turn.</strong> Come back facing another way, or allowed to turn the other way, and a route that was closed can open.</p><p>That is why a familiar square can become useful again. The route you take to a switch also determines the direction you face when its rule takes effect.</p><p>The local solver follows the same two moves you do, comparing complete states. You can ask it to check a prediction or reveal a route; it all happens in your browser.</p></div></details>
+      </section>
+    </main>
+    <footer><div class="footer-links"><a href="../">← Back to the lab</a><a href="https://github.com/kevinmneal/homepage/tree/main/docs/lab/switchback">Source on GitHub ↗</a></div><span>One maze. Take your time.</span></footer>
+  </div>
+</body>
+</html>

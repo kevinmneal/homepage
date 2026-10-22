@@ -1,0 +1,15 @@
+{
+  "repository": "https://github.com/kevinmneal/switchback-foundry",
+  "revision": "ee21f365f6ce42af6f8fc22c23122f782329e24f",
+  "files": {
+    "README.md": "5c31d50491c62313d7f6c53ba2e05413a3da20462e38d15ac39ba44372ef24db",
+    "app.mjs": "58b5c8569488f7e5c08157b912eaeca1e00b8667cd0f4671ff106f916255e779",
+    "base.css": "b30d80f3d7dd4e7446d8066b401ae8b7c2c2cdc87692a50b86d40178d703c2da",
+    "favicon.svg": "e039bb84b1fd5ad179f7ddd04419ecc0011e80f0f94efac78b1f0f4d7b62105c",
+    "index.html": "77f6cb1162f97311661137232861d8539216dcd6a0da727234e89c3f72a0d950",
+    "model.mjs": "5b1a03d55a82cb0cf6e46ec41c37460093f2756d3578788110c6a8a7d2d3857e",
+    "puzzle.mjs": "e4e5760c67338a0114684237036f8349629f966b789640e5a96d15898cb4b0cc",
+    "switchback.css": "4312881fe4f05bad72405660794e15d1f75d5a137ebc8559e306eecb0d00f395",
+    "theme.mjs": "01c404c998edd971b6e94b7f8699776a99d483fc7da210a24abf0e385be09afe"
+  }
+}

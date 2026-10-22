@@ -14,7 +14,7 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/hop-model.js`: deterministic game physics, spawning, collision, and scoring.
 - `docs/hop-audio.js`: optional synthesized effects, off until enabled.
 - `docs/lab/`: the small experiments index and its theme switch.
-- `docs/lab/switchback/`: Switchback Foundry, a maze with gradual hints, an optional route challenge, and a prediction experiment. [Rules and verification](docs/lab/switchback/README.md).
+- `docs/lab/switchback/`: Switchback Foundry, a maze with gradual hints, an optional route challenge, and a prediction experiment, copied from its [independent source repository](https://github.com/kevinmneal/switchback-foundry). Update it with `scripts/sync-switchback.py`.
 - `docs/lab/all-the-ways-to-fit/`: All the Ways to Fit, an exact-count tiling playground copied from its [independent source repository](https://github.com/kevinmneal/all-the-ways-to-fit). Update it with `scripts/sync-tiling-playground.py`; preserve the included MIT license.
 - `docs/assets/game/`: new croak/obstacle atlases, frame metadata, and exact ImageGen prompts.
 - `docs/assets/companion/`: project and reaction sprite atlases, frame metadata, and reaction-generation prompts.
@@ -58,7 +58,19 @@ Commit the regenerated files with the source changes. The script requires only P
 - `/sitemap.xml` lists the two reading pages and both interactive lab pages, avoiding duplicate format URLs and invented modification dates.
 - `/robots.txt` permits all crawlers and advertises the sitemap. This preserves the previous default public crawling policy; it adds no vendor-specific blocks or separate training-use signals.
 
-GitHub Actions runs the read-only discovery `--check`, Switchback model/syntax checks, and tiling snapshot hash verification on pushes to `main` and pull requests. It detects missing/stale output, broken internal destinations, missing discovery/footer links, and blocked crawling. This check runs alongside GitHub Pages; it does not gate Pages deployment. Run it locally before publishing. `.nojekyll` keeps the exports as static files. These additions improve access and navigation; search indexing and agent adoption remain outside the site's control.
+GitHub Actions runs the read-only discovery `--check`, Switchback snapshot/syntax checks, and tiling snapshot hash verification on pushes to `main` and pull requests. The independent puzzle model checks live in the Switchback source repository. This site's checks detect missing/stale output, broken internal destinations, missing discovery/footer links, and blocked crawling. They run alongside GitHub Pages; they do not gate Pages deployment. Run them locally before publishing. `.nojekyll` keeps the exports as static files. These additions improve access and navigation; search indexing and agent adoption remain outside the site's control.
+
+## Updating Switchback Foundry
+
+Make and test puzzle changes in [Switchback Foundry](https://github.com/kevinmneal/switchback-foundry), then commit and push them there. From this homepage checkout, copy that committed release:
+
+```sh
+python3 scripts/sync-switchback.py --source /path/to/switchback-foundry
+python3 scripts/sync-switchback.py --check
+python3 scripts/build-agent-pages.py --check
+```
+
+The copy includes only committed `dist/` files, with all runtime assets local to the puzzle. `scripts/switchback.snapshot.json` records the upstream revision and SHA-256 of every file. The check requires no source checkout or network access. Do not edit the hosted copy independently. Review the diff and exercise the page through a local HTTP preview before publishing. Updates are explicit; the source repository does not deploy to this site automatically. The independent checker and portable-export utility now belong to that repository.
 
 ## Updating the tiling playground
 

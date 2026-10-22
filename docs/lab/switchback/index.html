@@ -6,18 +6,18 @@
   <meta name="theme-color" content="#002b36">
   <meta name="description" content="A small puzzle about arriving differently. Play a maze, inspect its solution, and change one tile to see what makes it work.">
   <link rel="canonical" href="https://kevinmneal.com/lab/switchback/">
-  <link rel="describedby" href="../../llms.txt" type="text/plain">
-  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../../styles.css">
+  <link rel="describedby" href="https://kevinmneal.com/llms.txt" type="text/plain">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./base.css">
   <link rel="stylesheet" href="./switchback.css?v=20261022-discovery">
-  <script type="module" src="../lab.js"></script>
+  <script type="module" src="./theme.mjs"></script>
   <script type="module" src="./app.mjs?v=20261022-discovery"></script>
   <title>Switchback Foundry — Kevin M. Neal</title>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to puzzle</a>
   <div class="page switchback-page">
-    <header class="topbar"><a class="wordmark" href="../">kevinmneal<span>.com</span> / lab</a><button class="theme-toggle" id="theme-toggle" type="button" hidden>theme: <span id="theme-label">dark</span></button></header>
+    <header class="topbar"><a class="wordmark" href="https://kevinmneal.com/lab/">kevinmneal<span>.com</span> / lab</a><button class="theme-toggle" id="theme-toggle" type="button" hidden>theme: <span id="theme-label">dark</span></button></header>
     <main id="main" tabindex="-1">
       <section class="intro-switchback">
         <p class="eyebrow">a small maze with a change of direction <span class="prototype">playable prototype</span></p>
@@ -83,7 +83,7 @@
         <details><summary>A closer look at the way home <span aria-hidden="true">+</span></summary><div class="explanation"><p>A place in this puzzle has three parts: <strong>square, heading, and allowed turn.</strong> Come back facing another way, or allowed to turn the other way, and a route that was closed can open.</p><p>That is why a familiar square can become useful again. The route you take to a switch also determines the direction you face when its rule takes effect.</p><p>The local solver follows the same two moves you do, comparing complete states. You can ask it to check a prediction or reveal a route; it all happens in your browser.</p></div></details>
       </section>
     </main>
-    <footer><div class="footer-links"><a href="../">← Back to the lab</a><a href="https://github.com/kevinmneal/homepage/tree/main/docs/lab/switchback">Source on GitHub ↗</a></div><span>One maze. Take your time.</span></footer>
+    <footer><div class="footer-links"><a href="https://kevinmneal.com/lab/">← Back to the lab</a><a href="https://github.com/kevinmneal/switchback-foundry">Source on GitHub ↗</a></div><span>One maze. Take your time.</span></footer>
   </div>
 </body>
 </html>

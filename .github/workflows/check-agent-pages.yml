@@ -17,9 +17,9 @@ jobs:
           persist-credentials: false
       - name: Verify generated pages and discovery files
         run: python3 scripts/build-agent-pages.py --check
-      - name: Verify Switchback rules and puzzle properties
+      - name: Verify Switchback snapshot and application syntax
         run: |
-          node scripts/check-switchback.mjs
+          python3 scripts/sync-switchback.py --check
           node --check docs/lab/switchback/app.mjs
       - name: Verify tiling playground snapshot
         run: python3 scripts/sync-tiling-playground.py --check

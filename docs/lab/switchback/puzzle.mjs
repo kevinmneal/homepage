@@ -1,4 +1,4 @@
-/** One curated puzzle. Recheck advertised properties with scripts/check-switchback.mjs. */
+/** One curated puzzle. Recheck advertised properties with npm test. */
 export const PUZZLE = {
   "id": "long-way-round-v2",
   "title": "The long way round",

@@ -93,11 +93,14 @@ function setMessage(text, kind = '') {
   announce(text);
 }
 function showBoardForPlay() {
-  if (!window.matchMedia('(max-width: 700px) and (min-height: 541px)').matches) return;
+  // Only used when explicitly returning to play, never after each move.
+  const narrow = window.matchMedia('(max-width: 700px)').matches;
+  if (!narrow && !window.matchMedia('(max-width: 1100px) and (max-height: 540px)').matches) return;
   const board = byId('board');
   const rect = board.getBoundingClientRect();
-  const panelTop = document.querySelector('.play-panel').getBoundingClientRect().top;
-  if (rect.top < 0 || rect.bottom > panelTop) board.scrollIntoView({ block: 'start' });
+  if (rect.top < 0 || rect.bottom > window.innerHeight) {
+    (narrow ? board : byId('instrument')).scrollIntoView({ block: 'start' });
+  }
 }
 function renderExperiment() {
   // A prediction and an explicit check are required before showing the verdict.
@@ -222,7 +225,7 @@ function move(action) {
       ? `Route challenge complete! You found a shortest way out in ${moves} moves.`
       : `You found the way out in ${moves} moves!`;
   }
-  setMessage(message, won ? 'won' : ''); render(); showBoardForPlay();
+  setMessage(message, won ? 'won' : ''); render();
 }
 function openingMessage() {
   const start = puzzle.start;
@@ -255,7 +258,6 @@ function revealStep(delta, automatic = false) {
   render();
   if (previousFocus === byId('next-step') && byId('next-step').disabled) byId('previous-step').focus({ preventScroll: true });
   if (previousFocus === byId('previous-step') && byId('previous-step').disabled) byId('next-step').focus({ preventScroll: true });
-  if (!automatic) showBoardForPlay();
 }
 for (const action of ['forward', 'turn']) byId(action).addEventListener('click', () => {
   move(action);
@@ -335,7 +337,7 @@ byId('auto-play').addEventListener('click', () => {
   if (timer !== null) { stopAuto(); announce(`Playback paused at step ${revealIndex}.`); return; }
   if (revealIndex === solution.distance) revealIndex = 0;
   insightPause = false;
-  timer = setInterval(() => revealStep(1, true), 1250); render(); showBoardForPlay();
+  timer = setInterval(() => revealStep(1, true), 1250); render();
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopAuto(); });
 window.addEventListener('pagehide', stopAuto);
@@ -352,9 +354,5 @@ document.addEventListener('keydown', event => {
 });
 byId('puzzle-title').textContent = PUZZLE.title;
 byId('instrument').hidden = false;
-const controls = document.querySelector('.play-panel');
-new ResizeObserver(() => {
-  document.documentElement.style.setProperty('--controls-height', `${Math.ceil(controls.getBoundingClientRect().height)}px`);
-}).observe(controls);
 renderExperiment();
 reset();

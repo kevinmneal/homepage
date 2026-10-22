@@ -9,9 +9,9 @@
   <link rel="describedby" href="https://kevinmneal.com/llms.txt" type="text/plain">
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./base.css">
-  <link rel="stylesheet" href="./switchback.css?v=20261022-discovery">
+  <link rel="stylesheet" href="./switchback.css?v=20261022-mobile-flow">
   <script type="module" src="./theme.mjs"></script>
-  <script type="module" src="./app.mjs?v=20261022-discovery"></script>
+  <script type="module" src="./app.mjs?v=20261022-mobile-flow"></script>
   <title>Switchback Foundry — Kevin M. Neal</title>
 </head>
 <body>
@@ -30,9 +30,7 @@
           <div class="board-heading"><h2><span class="eyebrow">01</span> <span id="puzzle-title">The maze</span></h2><span id="board-version">original puzzle</span></div>
           <div class="board-wrap"><svg id="board" viewBox="0 0 648 648" role="img" tabindex="0" aria-labelledby="board-title board-description" aria-describedby="keyboard-help" aria-keyshortcuts="F ArrowUp T Space Z R"><title id="board-title">Switchback maze</title><desc id="board-description"></desc><defs><pattern id="wall-hatch" patternUnits="userSpaceOnUse" width="9" height="9"><path d="M-2 2L2 -2M0 9L9 0M7 11L11 7" class="hatch"/></pattern></defs><g id="tiles"></g><g id="trail"></g><g id="markers"></g><g id="player"></g></svg></div>
           <div class="legend" aria-label="Board key"><span><i class="legend-player">↑</i> you</span><span><i class="legend-switch">◆</i> flips turn</span><span><i class="legend-exit">E</i> exit</span><span><i class="legend-start">○</i> start</span></div>
-          <p class="keyboard-help" id="keyboard-help">Click or Tab to the maze for keys: F / ↑ forward, T / Space turn, Z undo, R reset.</p>
-          <div class="board-note"><span class="tiny-arrow" aria-hidden="true">↳</span><p id="board-note">A switch flips your allowed turn each time you enter it. The new rule stays with you.</p></div>
-          <details class="board-text"><summary>Read the board as text</summary><pre id="text-board"></pre><p>Coordinates use column letters and row numbers. # wall · floor ◆ switch O start E exit. Your current position and available actions are described in the play panel.</p></details>
+
         </section>
         <div class="workbench">
           <section class="play-panel" aria-labelledby="play-heading">
@@ -77,6 +75,11 @@
             </div>
           </details>
         </div>
+        <section class="board-guide" aria-label="Board instructions">
+          <p class="keyboard-help" id="keyboard-help">Click or Tab to the maze for keys: F / ↑ forward, T / Space turn, Z undo, R reset.</p>
+          <div class="board-note"><span class="tiny-arrow" aria-hidden="true">↳</span><p id="board-note">A switch flips your allowed turn each time you enter it. The new rule stays with you.</p></div>
+          <details class="board-text"><summary>Read the board as text</summary><pre id="text-board"></pre><p>Coordinates use column letters and row numbers. # wall · floor ◆ switch O start E exit. Your current position and available actions are described in the play panel.</p></details>
+        </section>
       </div>
       <p id="announcement" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
       <section class="under-the-hood" id="afterword" hidden>

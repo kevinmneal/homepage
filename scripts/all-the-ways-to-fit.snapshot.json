@@ -1,0 +1,17 @@
+{
+  "repository": "https://github.com/kevinmneal/all-the-ways-to-fit",
+  "revision": "201ea64c1ccd1a3d37d6cced3fc60cbeb41a70b4",
+  "files": {
+    "LICENSE": "b514a4415ad8defd6532f9e292e932d13e9fe80853b605b580400876d418debe",
+    "app.mjs": "b54743313ecbacfad0aef90d926ea5bd9bff4b5ed5b0637a21cc7f0f0a765cd2",
+    "background-solver.mjs": "532c86cc1da74e01d3e32eecadfb5d50df7336f268f4ef70e2c1cf3acb68ec39",
+    "drag-geometry.mjs": "d926a2e8c2f6a87dec4ea9bd478916d507f60a3b185735307cdefa26638e32eb",
+    "engine.mjs": "f4b43c0a492523b0f35aa7ea9fc78453556047774f0ddd8a8214a36d0fbac88a",
+    "favicon.svg": "e4ea7c11bbf9ba3b00066979ef1d0de028d071021e6c666e2d3a2ee66101e789",
+    "finish-comparison.mjs": "2f8f6182bc9912103e325a7998861bddb5d1f48532a9618b9a585d714332e9c7",
+    "index.html": "badada47d79040438a40410e7bc2de5b6dc9ff60a14865df6eebe344955f8b44",
+    "possibility-insights.mjs": "7976868e3c75c747e7755aee556a92a3fd8f4f535968b3c815e69a6f2dfd60cc",
+    "solver-worker.mjs": "1eb48a6ed75da2cc54dab7fa1ed3f4dbb1e2a2ac3c2ee96a3fa8fc2c0b823df7",
+    "styles.css": "64e37be704e19d4b783a82c15834d53ec4ce2cd2503db60b72ca174793ec3657"
+  }
+}

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102b32" />
+    <meta
+      name="description"
+      content="A little geometric playground. Place a piece and explore every way to finish."
+    />
+    <title>All the Ways to Fit — tilings and possibility</title>
+    <link
+      rel="canonical"
+      href="https://kevinmneal.com/lab/all-the-ways-to-fit/"
+    />
+    <link
+      rel="describedby"
+      href="https://kevinmneal.com/llms.txt"
+      type="text/plain"
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./app.mjs"></script>
+  </head>
+  <body>
+    <main class="page">
+      <header class="masthead">
+        <a
+          class="brand"
+          href="https://kevinmneal.com/lab/"
+          aria-label="Kevin M. Neal’s lab"
+          ><span class="brand-mark" aria-hidden="true">▧</span> KEVIN M. NEAL
+          <span class="slash">/</span> LAB</a
+        ><span class="local-badge">TILING PLAYGROUND</span>
+      </header>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">A SMALL EXERCISE IN POSSIBILITY</p>
+          <h1>All the Ways <em>to Fit.</em></h1>
+        </div>
+        <p class="intro-copy">
+          A few pieces. An empty board.<br />
+          Every move changes what’s possible.
+        </p>
+      </section>
+      <div
+        class="board-picker"
+        id="board-picker"
+        aria-label="Choose a board"
+      ></div>
+      <section class="playground" aria-label="Tiling playground">
+        <div class="play-area">
+          <div class="board-toolbar">
+            <div>
+              <span class="small-label" id="board-label">THE BOARD</span
+              ><span id="progress" class="progress"></span>
+            </div>
+            <div class="board-actions">
+              <button id="undo" class="quiet-button" disabled>
+                <span aria-hidden="true">↶</span> Undo</button
+              ><button id="reset" class="quiet-button">Reset</button>
+            </div>
+          </div>
+          <div class="board-stage" id="board-stage">
+            <div
+              id="board"
+              class="board"
+              role="grid"
+              aria-label="Puzzle board"
+              aria-describedby="board-help"
+            ></div>
+            <div class="solved-stamp" id="solved-stamp" hidden>
+              <span>EVERY PIECE HAS A PLACE</span><strong>A lovely fit.</strong
+              ><button id="another-fit">
+                Find another way <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </div>
+          <p class="board-help" id="board-help">
+            Choose a piece, then choose its place on the board.
+          </p>
+          <section
+            id="finish-browser"
+            class="finish-browser"
+            aria-label="Browse possible finishes"
+            hidden
+          >
+            <div class="finish-navigation">
+              <button id="finish-prev" aria-label="Previous finish">
+                ← Previous</button
+              ><span id="finish-label"></span
+              ><button id="finish-next" aria-label="Next finish">Next →</button>
+            </div>
+            <p
+              id="finish-description"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            ></p>
+            <div
+              id="finish-pieces"
+              class="finish-pieces"
+              aria-label="Tiles that change"
+            ></div>
+            <button id="finish-retry" class="quiet-button" hidden>
+              Try this finish again ↻
+            </button>
+          </section>
+          <p id="message" class="message" role="status" aria-live="polite">
+            Rotations and flips are allowed. Use every piece once.
+          </p>
+          <div class="trail-section">
+            <span class="small-label">YOUR PATH THROUGH THE POSSIBILITIES</span>
+            <div id="trail" class="trail" aria-label="Move history"></div>
+          </div>
+        </div>
+        <aside class="workbench" aria-label="Pieces and possibilities">
+          <div class="possibility-panel" id="possibility-panel">
+            <div class="count-label">
+              <span class="small-label">WAYS TO FINISH</span
+              ><span class="exact-badge" id="count-badge">COUNTING</span>
+            </div>
+            <div id="count" class="count" aria-live="polite" aria-atomic="true">
+              …
+            </div>
+            <p id="count-description">Finding the possibilities…</p>
+            <button id="retry-count" class="quiet-button" hidden>
+              Try counting again ↻
+            </button>
+            <div class="preview-line" id="preview-line">
+              Pick a piece to explore.
+            </div>
+          </div>
+          <div class="pieces-header">
+            <span class="small-label">YOUR PIECES</span>
+            <div class="selection-copy">
+              <span id="selection-label">Pick one</span
+              ><span
+                id="selection-options"
+                class="selection-options"
+                title="Distinct placements that allow a complete tiling, across all rotations and flips."
+              ></span>
+            </div>
+          </div>
+          <div
+            class="pieces"
+            id="pieces"
+            role="group"
+            aria-label="Choose a piece"
+          ></div>
+          <div class="piece-controls">
+            <button id="rotate" disabled>
+              <span aria-hidden="true">↻</span> Rotate <kbd>R</kbd></button
+            ><button id="flip" disabled>
+              <span aria-hidden="true">⇄</span> Flip <kbd>F</kbd>
+            </button>
+          </div>
+          <button class="place-button" id="place" disabled>
+            Choose a place on the board
+          </button>
+          <div class="help-actions">
+            <button id="hint">
+              A little nudge <span aria-hidden="true">↗</span></button
+            ><button
+              id="peek"
+              aria-expanded="false"
+              aria-controls="finish-browser"
+            >
+              Browse finishes
+            </button>
+          </div>
+        </aside>
+      </section>
+      <section class="underneath">
+        <div class="invitation">
+          <span class="spark" aria-hidden="true">✳</span>
+          <p>
+            Can you leave just one finish while tiles are still in the tray?<br /><span
+              >Or keep your options open and try a different path.</span
+            >
+          </p>
+        </div>
+        <details id="explanation">
+          <summary>
+            What’s happening underneath? <span aria-hidden="true">＋</span>
+          </summary>
+          <div class="explanation-content">
+            <p>
+              Each piece placement makes a choice. An exact-cover search follows
+              every choice that can fill the board, reusing the answer whenever
+              it meets the same unfinished problem. The count is the number of
+              complete tilings compatible with the pieces you’ve placed.
+            </p>
+            <p>
+              A piece’s “possible fits” are distinct placements that still allow
+              a complete tiling, across all rotations and flips. One possible
+              fit means its position is already determined. A nudge picks a
+              piece with the fewest fits; “Show a place” reveals a location only
+              when you ask.
+            </p>
+            <p>
+              “Browse finishes” shows complete tilings without placing any
+              pieces. Previous and Next wrap around the remaining finishes.
+              Bright outlines and the list of names identify tiles whose
+              occupied squares changed from the finish you just viewed; already
+              placed tiles stay fixed. Finish numbers follow the search order,
+              not similarity or difficulty.
+            </p>
+            <p>
+              Counting runs in the background, so you can keep moving tiles
+              while it catches up. An ellipsis means a count is still unknown.
+              Hints and finish browsing become available when the current count
+              is ready. Choosing another board stops the previous search.
+            </p>
+            <div class="engine-stats" id="engine-stats"></div>
+            <p>
+              This prototype uses a memoized exact-cover decision graph. It
+              borrows the idea of sharing repeated subproblems from
+              <a
+                href="https://ojs.aaai.org/index.php/AAAI/article/download/10662/10521"
+                target="_blank"
+                rel="noreferrer"
+                >Dancing with Decision Diagrams</a
+              >; it is not a reproduction of the paper’s full DXZ
+              implementation.
+            </p>
+            <p class="fine-print">
+              Counts distinguish locations and orientations on this fixed board;
+              rotating the whole solution counts as another tiling. Pieces have
+              distinct shapes, and duplicate orientations are removed. These are
+              finite grid puzzles, separate from continuous shape-packing
+              problems.
+            </p>
+          </div>
+        </details>
+      </section>
+      <footer>
+        <nav class="footer-links" aria-label="More to explore">
+          <a href="https://kevinmneal.com/lab/">← Back to the lab</a>
+          <a href="https://github.com/kevinmneal/all-the-ways-to-fit"
+            >Source on GitHub ↗</a
+          >
+        </nav>
+        <span>Browser-only · No accounts · No score to beat</span>
+      </footer>
+      <noscript
+        ><p class="noscript">
+          This playground needs JavaScript to draw the board and count tilings.
+        </p></noscript
+      >
+    </main>
+  </body>
+</html>

@@ -15,6 +15,7 @@ Plain HTML, CSS, and a little JavaScript, hosted on GitHub Pages. Public site fi
 - `docs/hop-audio.js`: optional synthesized effects, off until enabled.
 - `docs/lab/`: the small experiments index and its theme switch.
 - `docs/lab/switchback/`: Switchback Foundry, a maze with gradual hints, an optional route challenge, and a prediction experiment. [Rules and verification](docs/lab/switchback/README.md).
+- `docs/lab/all-the-ways-to-fit/`: All the Ways to Fit, an exact-count tiling playground copied from its [independent source repository](https://github.com/kevinmneal/all-the-ways-to-fit). Update it with `scripts/sync-tiling-playground.py`; preserve the included MIT license.
 - `docs/assets/game/`: new croak/obstacle atlases, frame metadata, and exact ImageGen prompts.
 - `docs/assets/companion/`: project and reaction sprite atlases, frame metadata, and reaction-generation prompts.
 - `docs/assets/spadefoot.png`: original owner-supplied character reference.
@@ -29,7 +30,7 @@ The featured work is Fortegra, spadefoot biogeography, and six-triangle packing;
 
 Typing uses short bursts and rests with one quick blink. Typing and map poses blend on a separate canvas to keep their opacity stable; the hopping sequence uses its original sprite animation.
 
-The companion uses three dedicated sixteen-pose sequences: a curious head turn and blink on mouse hover, a startled hop on the first tap, and an indignant throat puff on the second. These have no captions or tooltip. Reactions play once and return to the selected project scene; reduced motion suppresses them. [Exact reaction prompts and assets](docs/assets/companion/REACTIONS-v3.md) accompany the original PNGs; `scripts/build-reaction-frames.py` reproduces their frame metadata using Pillow. Three clicks/taps, each within 1.8 seconds of the last, open **MAKE HOP!**; keyboard and assistive activation open it directly. The independent [lab page](docs/lab/index.html) groups the game with Switchback Foundry and the existing watermarking and packing explainers, plus a small teaser for future experiments. Its game link uses `/#make-hop` (relative paths also support the GitHub project URL).
+The companion uses three dedicated sixteen-pose sequences: a curious head turn and blink on mouse hover, a startled hop on the first tap, and an indignant throat puff on the second. These have no captions or tooltip. Reactions play once and return to the selected project scene; reduced motion suppresses them. [Exact reaction prompts and assets](docs/assets/companion/REACTIONS-v3.md) accompany the original PNGs; `scripts/build-reaction-frames.py` reproduces their frame metadata using Pillow. Three clicks/taps, each within 1.8 seconds of the last, open **MAKE HOP!**; keyboard and assistive activation open it directly. The independent [lab page](docs/lab/index.html) groups the game with Switchback Foundry, All the Ways to Fit, and the existing watermarking and packing explainers, plus a small teaser for future experiments. Its game link uses `/#make-hop` (relative paths also support the GitHub project URL).
 
 Space/Up or the field/Hop button jumps; F or Make way! launches a rechargeable force front that sends obstacles tumbling away; P pauses. Three hits end a run. Fireflies add points and recharge the croak. Speed rises from 210 to 370 logical pixels/second over 80 seconds. Tumbleweeds enter the spawn mix after 15 seconds and high moths after 30; running underneath a moth is safe. Spacing leaves room to land between obstacles. The pace and stage are shown in the dialog.
 
@@ -54,10 +55,23 @@ Commit the regenerated files with the source changes. The script requires only P
 
 - `/index.md` and `/lab/index.md` are faithful text versions of the homepage and lab. Both HTML pages expose a `rel="alternate"` discovery link. The visible **View as Markdown** links open byte-identical `/index.md.txt` and `/lab/index.md.txt` copies served as `text/plain`, so browsers can display the Markdown source inline instead of treating its MIME type as a download.
 - `/llms.txt` is a compact directory of those pages, interactive experiences, research sources, and profiles, following the [llms.txt proposal](https://llmstxt.org/). Each HTML page links to it with `rel="describedby"` and a footer link.
-- `/sitemap.xml` lists the two reading pages and the Switchback interactive page, avoiding duplicate format URLs and invented modification dates.
+- `/sitemap.xml` lists the two reading pages and both interactive lab pages, avoiding duplicate format URLs and invented modification dates.
 - `/robots.txt` permits all crawlers and advertises the sitemap. This preserves the previous default public crawling policy; it adds no vendor-specific blocks or separate training-use signals.
 
-GitHub Actions runs the read-only discovery `--check` and Switchback model/syntax checks on pushes to `main` and pull requests. It detects missing/stale output, broken internal destinations, missing discovery/footer links, and blocked crawling. This check runs alongside GitHub Pages; it does not gate Pages deployment. Run it locally before publishing. `.nojekyll` keeps the exports as static files. These additions improve access and navigation; search indexing and agent adoption remain outside the site's control.
+GitHub Actions runs the read-only discovery `--check`, Switchback model/syntax checks, and tiling snapshot hash verification on pushes to `main` and pull requests. It detects missing/stale output, broken internal destinations, missing discovery/footer links, and blocked crawling. This check runs alongside GitHub Pages; it does not gate Pages deployment. Run it locally before publishing. `.nojekyll` keeps the exports as static files. These additions improve access and navigation; search indexing and agent adoption remain outside the site's control.
+
+## Updating the tiling playground
+
+Make and test application changes in [All the Ways to Fit](https://github.com/kevinmneal/all-the-ways-to-fit), then commit and push them there. From this homepage checkout, copy that committed release:
+
+```sh
+python3 scripts/sync-tiling-playground.py --source /path/to/all-the-ways-to-fit
+python3 scripts/sync-tiling-playground.py --check
+python3 scripts/build-agent-pages.py
+python3 scripts/build-agent-pages.py --check
+```
+
+The copy includes only committed `dist/` files and `LICENSE`; `scripts/all-the-ways-to-fit.snapshot.json` records the upstream revision and SHA-256 of every file. The check is local and needs no source checkout or network access. Do not edit the hosted copy independently. Review the diff and exercise the page through a local HTTP preview before publishing. Updates are explicit; the source repository does not deploy to this site automatically.
 
 ## Local preview
 

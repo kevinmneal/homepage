@@ -18,7 +18,7 @@ from xml.sax.saxutils import escape as xml_escape
 
 ROOT = Path(__file__).resolve().parents[1] / 'docs'
 PAGES = ('index.html', 'lab/index.html')
-INTERACTIVE_PAGES = ('lab/switchback/index.html',)
+INTERACTIVE_PAGES = ('lab/switchback/index.html', 'lab/all-the-ways-to-fit/index.html')
 VOID = set('area base br col embed hr img input link meta param source track wbr'.split())
 OMIT_TAGS = {'aside', 'button', 'canvas', 'dialog', 'script', 'style', 'svg'}
 OMIT_CLASSES = {'interaction-hint', 'row-number', 'row-category', 'expand-icon', 'lab-cta'}
